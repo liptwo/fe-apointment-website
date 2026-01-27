@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent } from "@/components/ui/card"
+import { getHosts } from "@/services/host.service"
 
 const SPECIALTIES = [
   "All Specialties",
@@ -25,6 +26,7 @@ const SPECIALTIES = [
   "Pediatrics",
   "Psychiatry",
   "Radiology",
+  "Dentist",
 ]
 
 export default function HostsPage() {
@@ -48,88 +50,27 @@ export default function HostsPage() {
     setError(null)
 
     try {
-      const params = new URLSearchParams()
-      if (debouncedSearch) params.append("name", debouncedSearch)
-      if (specialty && specialty !== "All Specialties") {
-        params.append("specialty", specialty)
-      }
-
-      const queryString = params.toString()
-      const url = `/hosts${queryString ? `?${queryString}` : ""}`
-
-      const response = await fetch(`/api${url}`)
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch hosts")
-      }
-
-      const data = await response.json()
-      setHosts(data)
+      // Handle 'All Specialties' case
+      const specialtyToFetch =
+        specialty === "All Specialties" ? undefined : specialty
+      const response = await getHosts(specialtyToFetch)
+      setHosts(response.data)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
-      // Mock data for demo purposes
-      setHosts([
-        {
-          id: "1",
-          name: "Dr. Sarah Johnson",
-          specialty: "Cardiology",
-          description:
-            "Board-certified cardiologist with over 15 years of experience in treating heart conditions. Specializes in preventive cardiology and heart failure management.",
-        },
-        {
-          id: "2",
-          name: "Dr. Michael Chen",
-          specialty: "Dermatology",
-          description:
-            "Expert dermatologist specializing in skin cancer detection, acne treatment, and cosmetic dermatology. Uses the latest technologies for accurate diagnosis.",
-        },
-        {
-          id: "3",
-          name: "Dr. Emily Rodriguez",
-          specialty: "Pediatrics",
-          description:
-            "Caring pediatrician dedicated to children's health from infancy through adolescence. Focuses on developmental milestones and preventive care.",
-        },
-        {
-          id: "4",
-          name: "Dr. James Wilson",
-          specialty: "Orthopedics",
-          description:
-            "Orthopedic surgeon specializing in sports medicine and joint replacement. Helps patients return to active lifestyles through minimally invasive procedures.",
-        },
-        {
-          id: "5",
-          name: "Dr. Lisa Park",
-          specialty: "Neurology",
-          description:
-            "Neurologist with expertise in headache disorders, epilepsy, and neurodegenerative diseases. Committed to improving quality of life for patients.",
-        },
-        {
-          id: "6",
-          name: "Dr. Robert Taylor",
-          specialty: "General Practice",
-          description:
-            "Family medicine physician providing comprehensive care for patients of all ages. Emphasizes preventive medicine and chronic disease management.",
-        },
-      ])
+      setHosts([]) // Clear hosts on error
     } finally {
       setLoading(false)
     }
-  }, [debouncedSearch, specialty])
+  }, [specialty])
 
   useEffect(() => {
     fetchHosts()
   }, [fetchHosts])
 
-  // Filter hosts based on search and specialty (client-side filtering for demo)
-  const filteredHosts = hosts.filter((host) => {
-    const matchesName = host.name
-      .toLowerCase()
-      .includes(debouncedSearch.toLowerCase())
-    const matchesSpecialty =
-      specialty === "All Specialties" || host.specialty === specialty
-    return matchesName && matchesSpecialty
-  })
+  // Filter hosts by name on the client-side
+  const filteredHosts = hosts.filter((host) =>
+    host.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -210,7 +151,7 @@ export default function HostsPage() {
         {/* Error State */}
         {error && !loading && (
           <div className="mb-4 rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
-            Note: Using demo data. {error}
+            {error}
           </div>
         )}
 

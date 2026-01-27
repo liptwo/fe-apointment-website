@@ -73,7 +73,7 @@ export function LoginForm() {
         <form onSubmit={handleSubmit} className='space-y-4'>
           {error && (
             <div className='flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive'>
-              <AlertCircle className='h-4 w-4 flex-shrink-0' />
+              <AlertCircle className='h-4 w-4 shrink-0' />
               <span>{error}</span>
             </div>
           )}

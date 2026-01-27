@@ -17,12 +17,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { getTimeslotsByHostId } from "@/services/timeslot.service"
+import { getHostById } from "@/services/host.service"
 
 interface Host {
   id: string
   name: string
   specialty: string
-  description: string
+  // description is not available on this endpoint
 }
 
 interface TimeSlot {
@@ -67,6 +69,7 @@ export default function HostDetailPage() {
 
   const [host, setHost] = useState<Host | null>(null)
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
+  const [filteredTimeSlots, setFilteredTimeSlots] = useState<TimeSlot[]>([])
   const [loadingHost, setLoadingHost] = useState(true)
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -79,22 +82,13 @@ export default function HostDetailPage() {
   // Fetch host info
   useEffect(() => {
     async function fetchHost() {
+      if (!hostId) return
       setLoadingHost(true)
       try {
-        const response = await fetch(`/api/hosts/${hostId}`)
-        if (!response.ok) throw new Error("Failed to fetch host")
-        const data = await response.json()
-        setHost(data)
+        const hostData = await getHostById(hostId)
+        setHost(hostData)
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred")
-        // Demo data
-        setHost({
-          id: hostId,
-          name: "Dr. Sarah Johnson",
-          specialty: "Cardiology",
-          description:
-            "Board-certified cardiologist with over 15 years of experience in treating heart conditions. Specializes in preventive cardiology, heart failure management, and cardiac rehabilitation. Dr. Johnson is dedicated to providing personalized care and helping patients maintain optimal heart health through comprehensive treatment plans.",
-        })
       } finally {
         setLoadingHost(false)
       }
@@ -102,42 +96,32 @@ export default function HostDetailPage() {
     fetchHost()
   }, [hostId])
 
-  // Fetch time slots for selected date
-  const fetchTimeSlots = useCallback(async () => {
-    setLoadingSlots(true)
-    try {
-      const dateStr = formatDate(selectedDate)
-      const response = await fetch(
-        `/api/hosts/${hostId}/timeslots?date=${dateStr}`
-      )
-      if (!response.ok) throw new Error("Failed to fetch time slots")
-      const data = await response.json()
-      // Only show available slots
-      setTimeSlots(data.filter((slot: TimeSlot) => slot.isAvailable))
-    } catch (err) {
-      // Demo data
-      const dateStr = formatDate(selectedDate)
-      const demoSlots: TimeSlot[] = [
-        { id: "1", date: dateStr, startLabel: "09:00", endLabel: "09:30", isAvailable: true },
-        { id: "2", date: dateStr, startLabel: "09:30", endLabel: "10:00", isAvailable: true },
-        { id: "3", date: dateStr, startLabel: "10:00", endLabel: "10:30", isAvailable: false },
-        { id: "4", date: dateStr, startLabel: "10:30", endLabel: "11:00", isAvailable: true },
-        { id: "5", date: dateStr, startLabel: "11:00", endLabel: "11:30", isAvailable: true },
-        { id: "6", date: dateStr, startLabel: "14:00", endLabel: "14:30", isAvailable: true },
-        { id: "7", date: dateStr, startLabel: "14:30", endLabel: "15:00", isAvailable: false },
-        { id: "8", date: dateStr, startLabel: "15:00", endLabel: "15:30", isAvailable: true },
-        { id: "9", date: dateStr, startLabel: "15:30", endLabel: "16:00", isAvailable: true },
-        { id: "10", date: dateStr, startLabel: "16:00", endLabel: "16:30", isAvailable: true },
-      ]
-      setTimeSlots(demoSlots.filter((slot) => slot.isAvailable))
-    } finally {
-      setLoadingSlots(false)
-    }
-  }, [hostId, selectedDate])
-
+  // Fetch all time slots for the host once
   useEffect(() => {
-    fetchTimeSlots()
-  }, [fetchTimeSlots])
+    const fetchAllTimeSlots = async () => {
+      if (!hostId) return
+      setLoadingSlots(true)
+      setError(null)
+      try {
+        const data = await getTimeslotsByHostId(hostId)
+        setTimeSlots(data)
+      } catch (err) {
+        setError("Failed to load available time slots.")
+      } finally {
+        setLoadingSlots(false)
+      }
+    }
+    fetchAllTimeSlots()
+  }, [hostId])
+
+  // Filter timeslots whenever the selected date or the main timeslots list changes
+  useEffect(() => {
+    const dateStr = formatDate(selectedDate)
+    const availableSlotsForDate = timeSlots.filter(
+      (slot) => slot.date === dateStr && slot.isAvailable
+    )
+    setFilteredTimeSlots(availableSlotsForDate)
+  }, [selectedDate, timeSlots])
 
   const handlePrevDates = () => {
     if (dateOffset > 0) {
@@ -154,8 +138,7 @@ export default function HostDetailPage() {
   const visibleDates = dates.slice(dateOffset, dateOffset + visibleDatesCount)
 
   const handleBook = (slotId: string) => {
-    // Navigate to booking confirmation or perform booking action
-    router.push(`/hosts/${hostId}/book?slot=${slotId}&date=${formatDate(selectedDate)}`)
+    router.push(`/hosts/${hostId}/book?timeslotId=${slotId}`)
   }
 
   return (
@@ -190,7 +173,7 @@ export default function HostDetailPage() {
                         <Skeleton className="mt-2 h-5 w-24" />
                       </div>
                     </div>
-                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-20 w-full" />
                   </div>
                 ) : host ? (
                   <div>
@@ -207,9 +190,6 @@ export default function HostDetailPage() {
                         </Badge>
                       </div>
                     </div>
-                    <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
-                      {host.description}
-                    </p>
                   </div>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
@@ -304,9 +284,9 @@ export default function HostDetailPage() {
                         <Skeleton key={i} className="h-16 w-full" />
                       ))}
                     </div>
-                  ) : timeSlots.length > 0 ? (
+                  ) : filteredTimeSlots.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                      {timeSlots.map((slot) => (
+                      {filteredTimeSlots.map((slot) => (
                         <div
                           key={slot.id}
                           className="flex flex-col items-center rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/50"

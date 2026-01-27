@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { format } from "date-fns"
-import { CalendarDays, Clock, Loader2, AlertCircle, X } from "lucide-react"
+import { CalendarDays, Clock, Loader2, AlertCircle, X, User } from "lucide-react"
 import { AppHeader } from "@/components/app-header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -26,14 +26,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
-interface Appointment {
-  id: string
-  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED"
-  timeSlot: {
-    startTime: string
-  }
-}
+import { getMyBookings, cancelAppointment } from "@/services/appointment.service"
+import { Appointment } from "@/types"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
 const STATUS_STYLES: Record<Appointment["status"], { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
   PENDING: { variant: "secondary", label: "Pending" },
@@ -49,6 +45,7 @@ export default function MyAppointmentsPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
+  const [cancelReason, setCancelReason] = useState("")
 
   useEffect(() => {
     fetchAppointments()
@@ -57,51 +54,11 @@ export default function MyAppointmentsPage() {
   const fetchAppointments = async () => {
     setLoading(true)
     setError(null)
-
     try {
-      const token = localStorage.getItem("accessToken")
-      const response = await fetch("/api/appointments/my", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch appointments")
-      }
-
-      const data = await response.json()
+      const data = await getMyBookings()
       setAppointments(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
-      // Mock data for demo purposes
-      setAppointments([
-        {
-          id: "1",
-          status: "PENDING",
-          timeSlot: { startTime: new Date(Date.now() + 86400000 * 2).toISOString() },
-        },
-        {
-          id: "2",
-          status: "CONFIRMED",
-          timeSlot: { startTime: new Date(Date.now() + 86400000 * 5).toISOString() },
-        },
-        {
-          id: "3",
-          status: "COMPLETED",
-          timeSlot: { startTime: new Date(Date.now() - 86400000 * 3).toISOString() },
-        },
-        {
-          id: "4",
-          status: "CANCELLED",
-          timeSlot: { startTime: new Date(Date.now() - 86400000 * 1).toISOString() },
-        },
-        {
-          id: "5",
-          status: "PENDING",
-          timeSlot: { startTime: new Date(Date.now() + 86400000 * 7).toISOString() },
-        },
-      ])
     } finally {
       setLoading(false)
     }
@@ -109,6 +66,7 @@ export default function MyAppointmentsPage() {
 
   const handleCancelClick = (appointment: Appointment) => {
     setSelectedAppointment(appointment)
+    setCancelReason("")
     setShowCancelDialog(true)
   }
 
@@ -119,31 +77,11 @@ export default function MyAppointmentsPage() {
     setShowCancelDialog(false)
 
     try {
-      const token = localStorage.getItem("accessToken")
-      const response = await fetch(`/api/appointments/${selectedAppointment.id}/cancel`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to cancel appointment")
-      }
-
-      // Update local state
-      setAppointments((prev) =>
-        prev.map((apt) =>
-          apt.id === selectedAppointment.id ? { ...apt, status: "CANCELLED" as const } : apt
-        )
-      )
+      await cancelAppointment(selectedAppointment.id, cancelReason)
+      // Refresh the list to show the updated status
+      fetchAppointments()
     } catch (err) {
-      // For demo: update locally anyway
-      setAppointments((prev) =>
-        prev.map((apt) =>
-          apt.id === selectedAppointment.id ? { ...apt, status: "CANCELLED" as const } : apt
-        )
-      )
+      setError("Failed to cancel appointment. Please try again.")
     } finally {
       setCancellingId(null)
       setSelectedAppointment(null)
@@ -163,7 +101,6 @@ export default function MyAppointmentsPage() {
       <AppHeader />
 
       <main className="container mx-auto px-4 py-8">
-        {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-semibold text-foreground">My Appointments</h1>
           <p className="mt-2 text-muted-foreground">
@@ -171,36 +108,24 @@ export default function MyAppointmentsPage() {
           </p>
         </div>
 
-        {/* Error State */}
-        {error && !loading && (
+        {error && (
           <div className="mb-4 rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
-            Note: Using demo data. {error}
+            {error}
           </div>
         )}
 
-        {/* Loading State */}
-        {loading && (
+        {loading ? (
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-40" />
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <Skeleton className="h-5 w-28" />
-                    <Skeleton className="h-5 w-20" />
-                    <Skeleton className="h-6 w-20" />
-                    <Skeleton className="h-9 w-20 ml-auto" />
-                  </div>
-                ))}
+                {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
               </div>
             </CardContent>
           </Card>
-        )}
-
-        {/* Appointments Table */}
-        {!loading && appointments.length > 0 && (
+        ) : appointments.length > 0 ? (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-medium flex items-center gap-2">
@@ -212,6 +137,7 @@ export default function MyAppointmentsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Provider</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Time</TableHead>
                     <TableHead>Status</TableHead>
@@ -221,11 +147,17 @@ export default function MyAppointmentsPage() {
                 <TableBody>
                   {appointments.map((appointment) => {
                     const statusConfig = STATUS_STYLES[appointment.status]
-                    const isPending = appointment.status === "PENDING"
+                    const canCancel = appointment.status === "PENDING" || appointment.status === "CONFIRMED"
                     const isCancelling = cancellingId === appointment.id
 
                     return (
                       <TableRow key={appointment.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                             <User className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{appointment.host?.name || "N/A"}</span>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <CalendarDays className="h-4 w-4 text-muted-foreground" />
@@ -246,7 +178,7 @@ export default function MyAppointmentsPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          {isPending && (
+                          {canCancel && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -272,11 +204,8 @@ export default function MyAppointmentsPage() {
               </Table>
             </CardContent>
           </Card>
-        )}
-
-        {/* Empty State */}
-        {!loading && appointments.length === 0 && (
-          <Card>
+        ) : (
+           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
                 <CalendarDays className="h-8 w-8 text-muted-foreground" />
@@ -288,14 +217,13 @@ export default function MyAppointmentsPage() {
                 You haven&apos;t booked any appointments. Find a healthcare provider to
                 schedule your first visit.
               </p>
-              <Button className="mt-6" onClick={() => window.location.href = "/hosts"}>
-                Find a Provider
+              <Button asChild className="mt-6">
+                <Link href="/hosts">Find a Provider</Link>
               </Button>
             </CardContent>
           </Card>
         )}
 
-        {/* Cancel Confirmation Dialog */}
         <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -311,11 +239,21 @@ export default function MyAppointmentsPage() {
                 </span>
                 ? This action cannot be undone.
               </AlertDialogDescription>
+              <div className="pt-2 space-y-2">
+                <Label htmlFor="cancelReason">Reason for cancellation</Label>
+                <Textarea
+                  id="cancelReason"
+                  placeholder="Please provide a brief reason for cancelling..."
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                />
+              </div>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleCancelConfirm}
+                disabled={!cancelReason.trim()}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Yes, Cancel
