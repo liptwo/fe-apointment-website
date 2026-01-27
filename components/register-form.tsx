@@ -1,37 +1,45 @@
-"use client"
+'use client'
 
-import React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import React from 'react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+  CardTitle
+} from '@/components/ui/card'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2, Phone } from "lucide-react"
-import { register } from "@/services/auth.service"
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  AlertCircle,
+  CheckCircle2,
+  Phone
+} from 'lucide-react'
+import { register } from '@/services/auth.service'
 
-type UserRole = "GUEST" | "HOST"
+type UserRole = 'GUEST' | 'HOST'
 
 export function RegisterForm() {
   const router = useRouter()
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [phone, setPhone] = useState("")
-  const [role, setRole] = useState<UserRole | "">("")
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
+  const [role, setRole] = useState<UserRole | ''>('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -42,22 +50,25 @@ export function RegisterForm() {
     setSuccess(false)
 
     if (!role) {
-      setError("Please select a role")
+      setError('Please select a role')
       return
     }
 
     setIsLoading(true)
 
     try {
-      await register({ name, email, password, phone, role });
+      await register({ name, email, password, phone, role })
       setSuccess(true)
 
       // Redirect to login page after short delay
       setTimeout(() => {
-        router.push("/login")
+        router.push('/login')
       }, 1500)
     } catch (err: any) {
-       const errorMessage = err.response?.data?.message || (err.message || "An unexpected error occurred");
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        'An unexpected error occurred'
       setError(errorMessage)
     } finally {
       setIsLoading(false)
@@ -65,121 +76,121 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="w-full max-w-md border-0 shadow-lg">
-      <CardHeader className="space-y-1 pb-4">
-        <CardTitle className="text-2xl font-semibold tracking-tight text-center">
+    <Card className='w-full max-w-md border-0 shadow-lg'>
+      <CardHeader className='space-y-1 pb-4'>
+        <CardTitle className='text-2xl font-semibold tracking-tight text-center'>
           Create an account
         </CardTitle>
-        <CardDescription className="text-center">
+        <CardDescription className='text-center'>
           Join MediCare to manage your medical appointments
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className='space-y-4'>
           {error && (
-            <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <div className='flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive'>
+              <AlertCircle className='h-4 w-4 shrink-0' />
               <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div className="flex items-center gap-2 rounded-md bg-green-500/15 p-3 text-sm text-green-500">
-              <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+            <div className='flex items-center gap-2 rounded-md bg-green-500/15 p-3 text-sm text-green-500'>
+              <CheckCircle2 className='h-4 w-4 shrink-0' />
               <span>Registration successful! Redirecting to login...</span>
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className='space-y-2'>
+            <Label htmlFor='name'>Full Name</Label>
+            <div className='relative'>
+              <User className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
               <Input
-                id="name"
-                type="text"
-                placeholder="John Doe"
+                id='name'
+                type='text'
+                placeholder='John Doe'
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-10"
+                className='pl-10'
                 required
                 disabled={isLoading || success}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className='space-y-2'>
+            <Label htmlFor='email'>Email</Label>
+            <div className='relative'>
+              <Mail className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
               <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
+                id='email'
+                type='email'
+                placeholder='name@example.com'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10"
-                required
-                disabled={isLoading || success}
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="0912345678"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="pl-10"
+                className='pl-10'
                 required
                 disabled={isLoading || success}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className='space-y-2'>
+            <Label htmlFor='phone'>Phone Number</Label>
+            <div className='relative'>
+              <Phone className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
               <Input
-                id="password"
-                type="password"
-                placeholder="Create a password"
+                id='phone'
+                type='tel'
+                placeholder='0912345678'
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className='pl-10'
+                required
+                disabled={isLoading || success}
+              />
+            </div>
+          </div>
+
+          <div className='space-y-2'>
+            <Label htmlFor='password'>Password</Label>
+            <div className='relative'>
+              <Lock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+              <Input
+                id='password'
+                type='password'
+                placeholder='Create a password'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10"
+                className='pl-10'
                 required
                 minLength={6}
                 disabled={isLoading || success}
               />
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className='text-xs text-muted-foreground'>
               Must be at least 6 characters
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="role">I want to</Label>
+          <div className='space-y-2'>
+            <Label htmlFor='role'>I want to</Label>
             <Select
               value={role}
               onValueChange={(value: UserRole) => setRole(value)}
               disabled={isLoading || success}
             >
-              <SelectTrigger id="role" className="w-full">
-                <SelectValue placeholder="Select your role" />
+              <SelectTrigger id='role' className='w-full'>
+                <SelectValue placeholder='Select your role' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="GUEST">
-                  <div className="flex flex-col items-start">
+                <SelectItem value='GUEST'>
+                  <div className='flex flex-col items-start'>
                     <span>Book appointments (Guest)</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="HOST">
-                  <div className="flex flex-col items-start">
+                <SelectItem value='HOST'>
+                  <div className='flex flex-col items-start'>
                     <span>Offer services (Host/Doctor)</span>
                   </div>
                 </SelectItem>
@@ -188,38 +199,38 @@ export function RegisterForm() {
           </div>
 
           <Button
-            type="submit"
-            className="w-full"
-            size="lg"
+            type='submit'
+            className='w-full'
+            size='lg'
             disabled={isLoading || success}
           >
             {isLoading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className='h-4 w-4 animate-spin' />
                 Creating account...
               </>
             ) : success ? (
               <>
-                <CheckCircle2 className="h-4 w-4" />
+                <CheckCircle2 className='h-4 w-4' />
                 Account created
               </>
             ) : (
-              "Create account"
+              'Create account'
             )}
           </Button>
 
-          <p className="text-center text-xs text-muted-foreground">
-            By creating an account, you agree to our{" "}
+          <p className='text-center text-xs text-muted-foreground'>
+            By creating an account, you agree to our{' '}
             <a
-              href="#"
-              className="underline underline-offset-4 hover:text-primary transition-colors"
+              href='#'
+              className='underline underline-offset-4 hover:text-primary transition-colors'
             >
               Terms of Service
-            </a>{" "}
-            and{" "}
+            </a>{' '}
+            and{' '}
             <a
-              href="#"
-              className="underline underline-offset-4 hover:text-primary transition-colors"
+              href='#'
+              className='underline underline-offset-4 hover:text-primary transition-colors'
             >
               Privacy Policy
             </a>
