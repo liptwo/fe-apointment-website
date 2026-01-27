@@ -2,7 +2,11 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react'
 import { User, LoginPayload } from '@/types'
-import { login as loginService, getMe, logout as logoutService } from '@/services/auth.service'
+import {
+  login as loginService,
+  getMe,
+  logout as logoutService
+} from '@/services/auth.service'
 import api from '@/lib/axios'
 
 // 1. Define the shape of the context data
@@ -36,7 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(null)
           delete api.defaults.headers.common['Authorization']
           localStorage.removeItem('accessToken')
-          localStorage.removeItem('userId')
+          localStorage.removeItem('user')
         }
       }
       setIsLoading(false)
@@ -50,7 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { accessToken, user } = response
 
     localStorage.setItem('accessToken', accessToken)
-    localStorage.setItem('userId', user.id) // Store userId
+    localStorage.setItem('user', JSON.stringify(user)) // Store user data
 
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
 
@@ -62,13 +66,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await logoutService()
     } catch (error) {
-      console.error("Logout failed", error)
+      console.error('Logout failed', error)
       // Still proceed with client-side cleanup
     } finally {
       setUser(null)
       delete api.defaults.headers.common['Authorization']
       localStorage.removeItem('accessToken')
-      localStorage.removeItem('userId')
+      localStorage.removeItem('user')
     }
   }
 

@@ -1,20 +1,27 @@
-"use client"
+'use client'
 
-import React, { useState, useEffect } from "react"
-import { format } from "date-fns"
-import { CalendarDays, Clock, Loader2, AlertCircle, X, User } from "lucide-react"
-import { AppHeader } from "@/components/app-header"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import React, { useState, useEffect } from 'react'
+import { format, isValid, parseISO } from 'date-fns'
+import {
+  CalendarDays,
+  Clock,
+  Loader2,
+  AlertCircle,
+  X,
+  User
+} from 'lucide-react'
+import { AppHeader } from '@/components/app-header'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+  TableRow
+} from '@/components/ui/table'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,19 +30,29 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getMyBookings, cancelAppointment } from "@/services/appointment.service"
-import { Appointment } from "@/types"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  getMyBookings,
+  cancelAppointment
+} from '@/services/appointment.service'
+import { Appointment } from '@/types'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import Link from 'next/link'
 
-const STATUS_STYLES: Record<Appointment["status"], { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
-  PENDING: { variant: "secondary", label: "Pending" },
-  CONFIRMED: { variant: "default", label: "Confirmed" },
-  CANCELLED: { variant: "destructive", label: "Cancelled" },
-  COMPLETED: { variant: "outline", label: "Completed" },
+const STATUS_STYLES: Record<
+  Appointment['status'],
+  {
+    variant: 'default' | 'secondary' | 'destructive' | 'outline'
+    label: string
+  }
+> = {
+  PENDING: { variant: 'secondary', label: 'Pending' },
+  CONFIRMED: { variant: 'default', label: 'Confirmed' },
+  CANCELLED: { variant: 'destructive', label: 'Cancelled' },
+  COMPLETED: { variant: 'outline', label: 'Completed' }
 }
 
 export default function MyAppointmentsPage() {
@@ -44,8 +61,9 @@ export default function MyAppointmentsPage() {
   const [error, setError] = useState<string | null>(null)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
-  const [cancelReason, setCancelReason] = useState("")
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null)
+  const [cancelReason, setCancelReason] = useState('')
 
   useEffect(() => {
     fetchAppointments()
@@ -58,7 +76,7 @@ export default function MyAppointmentsPage() {
       const data = await getMyBookings()
       setAppointments(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -66,7 +84,7 @@ export default function MyAppointmentsPage() {
 
   const handleCancelClick = (appointment: Appointment) => {
     setSelectedAppointment(appointment)
-    setCancelReason("")
+    setCancelReason('')
     setShowCancelDialog(true)
   }
 
@@ -81,7 +99,7 @@ export default function MyAppointmentsPage() {
       // Refresh the list to show the updated status
       fetchAppointments()
     } catch (err) {
-      setError("Failed to cancel appointment. Please try again.")
+      setError('Failed to cancel appointment. Please try again.')
     } finally {
       setCancellingId(null)
       setSelectedAppointment(null)
@@ -89,27 +107,46 @@ export default function MyAppointmentsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), "MMM dd, yyyy")
+    try {
+      if (!dateString) return '---'
+      return format(parseISO(dateString), 'MMM dd, yyyy')
+    } catch (error) {
+      return 'Lỗi ngày'
+    }
   }
 
-  const formatTime = (dateString: string) => {
-    return format(new Date(dateString), "hh:mm a")
-  }
+  const formatTime = (dateString: string | null | undefined) => {
+    if (!dateString) return '--:--'
 
+    // parseISO xử lý chuỗi từ Database (ISO 8601) tốt hơn new Date()
+    const date = parseISO(dateString)
+
+    if (!isValid(date)) {
+      // Nếu vẫn lỗi, thử parse chuỗi thủ công nếu đó là định dạng "HH:mm"
+      const fallbackDate = new Date(`1970-01-01T${dateString}`)
+      return isValid(fallbackDate)
+        ? format(fallbackDate, 'hh:mm a')
+        : 'Invalid Time'
+    }
+
+    return format(date, 'hh:mm a')
+  }
   return (
-    <div className="min-h-screen bg-background">
+    <div className='min-h-screen bg-background'>
       <AppHeader />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-foreground">My Appointments</h1>
-          <p className="mt-2 text-muted-foreground">
+      <main className='container mx-auto px-4 py-8'>
+        <div className='mb-8'>
+          <h1 className='text-3xl font-semibold text-foreground'>
+            My Appointments
+          </h1>
+          <p className='mt-2 text-muted-foreground'>
             View and manage your upcoming and past appointments.
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
+          <div className='mb-4 rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
             {error}
           </div>
         )}
@@ -117,19 +154,21 @@ export default function MyAppointmentsPage() {
         {loading ? (
           <Card>
             <CardHeader>
-              <Skeleton className="h-6 w-40" />
+              <Skeleton className='h-6 w-40' />
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+              <div className='space-y-4'>
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className='h-12 w-full' />
+                ))}
               </div>
             </CardContent>
           </Card>
         ) : appointments.length > 0 ? (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-medium flex items-center gap-2">
-                <CalendarDays className="h-5 w-5 text-primary" />
+              <CardTitle className='text-lg font-medium flex items-center gap-2'>
+                <CalendarDays className='h-5 w-5 text-primary' />
                 All Appointments
               </CardTitle>
             </CardHeader>
@@ -141,35 +180,41 @@ export default function MyAppointmentsPage() {
                     <TableHead>Date</TableHead>
                     <TableHead>Time</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
+                    <TableHead className='text-right'>Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {appointments.map((appointment) => {
                     const statusConfig = STATUS_STYLES[appointment.status]
-                    const canCancel = appointment.status === "PENDING" || appointment.status === "CONFIRMED"
+                    const canCancel =
+                      appointment.status === 'PENDING' ||
+                      appointment.status === 'CONFIRMED'
                     const isCancelling = cancellingId === appointment.id
 
                     return (
                       <TableRow key={appointment.id}>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                             <User className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">{appointment.host?.name || "N/A"}</span>
+                          <div className='flex items-center gap-2'>
+                            <User className='h-4 w-4 text-muted-foreground' />
+                            <span className='font-medium'>
+                              {appointment.host?.name || 'N/A'}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">
+                          <div className='flex items-center gap-2'>
+                            <CalendarDays className='h-4 w-4 text-muted-foreground' />
+                            <span className='font-medium'>
                               {formatDate(appointment.timeSlot.startTime)}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span>{formatTime(appointment.timeSlot.startTime)}</span>
+                          <div className='flex items-center gap-2'>
+                            <Clock className='h-4 w-4 text-muted-foreground' />
+                            <span>
+                              {formatTime(appointment.timeSlot.startTime)}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -177,20 +222,20 @@ export default function MyAppointmentsPage() {
                             {statusConfig.label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className='text-right'>
                           {canCancel && (
                             <Button
-                              variant="ghost"
-                              size="sm"
+                              variant='ghost'
+                              size='sm'
                               onClick={() => handleCancelClick(appointment)}
                               disabled={isCancelling}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              className='text-destructive hover:text-destructive hover:bg-destructive/10'
                             >
                               {isCancelling ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <Loader2 className='h-4 w-4 animate-spin' />
                               ) : (
                                 <>
-                                  <X className="h-4 w-4 mr-1" />
+                                  <X className='h-4 w-4 mr-1' />
                                   Cancel
                                 </>
                               )}
@@ -205,20 +250,20 @@ export default function MyAppointmentsPage() {
             </CardContent>
           </Card>
         ) : (
-           <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                <CalendarDays className="h-8 w-8 text-muted-foreground" />
+          <Card>
+            <CardContent className='flex flex-col items-center justify-center py-16 text-center'>
+              <div className='flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
+                <CalendarDays className='h-8 w-8 text-muted-foreground' />
               </div>
-              <h3 className="mt-4 text-lg font-medium text-foreground">
+              <h3 className='mt-4 text-lg font-medium text-foreground'>
                 No appointments yet
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-                You haven&apos;t booked any appointments. Find a healthcare provider to
-                schedule your first visit.
+              <p className='mt-2 text-sm text-muted-foreground max-w-sm'>
+                You haven&apos;t booked any appointments. Find a healthcare
+                provider to schedule your first visit.
               </p>
-              <Button asChild className="mt-6">
-                <Link href="/hosts">Find a Provider</Link>
+              <Button asChild className='mt-6'>
+                <Link href='/hosts'>Find a Provider</Link>
               </Button>
             </CardContent>
           </Card>
@@ -227,23 +272,26 @@ export default function MyAppointmentsPage() {
         <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-destructive" />
+              <AlertDialogTitle className='flex items-center gap-2'>
+                <AlertCircle className='h-5 w-5 text-destructive' />
                 Cancel Appointment
               </AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to cancel this appointment scheduled for{" "}
-                <span className="font-medium">
+                Are you sure you want to cancel this appointment scheduled for{' '}
+                <span className='font-medium'>
                   {selectedAppointment &&
-                    format(new Date(selectedAppointment.timeSlot.startTime), "MMMM dd, yyyy 'at' hh:mm a")}
+                    format(
+                      new Date(selectedAppointment.timeSlot.startTime),
+                      "MMMM dd, yyyy 'at' hh:mm a"
+                    )}
                 </span>
                 ? This action cannot be undone.
               </AlertDialogDescription>
-              <div className="pt-2 space-y-2">
-                <Label htmlFor="cancelReason">Reason for cancellation</Label>
+              <div className='pt-2 space-y-2'>
+                <Label htmlFor='cancelReason'>Reason for cancellation</Label>
                 <Textarea
-                  id="cancelReason"
-                  placeholder="Please provide a brief reason for cancelling..."
+                  id='cancelReason'
+                  placeholder='Please provide a brief reason for cancelling...'
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
                 />
@@ -254,7 +302,7 @@ export default function MyAppointmentsPage() {
               <AlertDialogAction
                 onClick={handleCancelConfirm}
                 disabled={!cancelReason.trim()}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
               >
                 Yes, Cancel
               </AlertDialogAction>

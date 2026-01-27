@@ -44,6 +44,7 @@ import React, { useState, useEffect } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Appointment } from '@/types'
+import { useAuth } from '@/providers/auth-provider'
 
 const STATUS_STYLES: Record<
   Appointment['status'],
@@ -60,10 +61,10 @@ const STATUS_STYLES: Record<
 
 function DashboardHeader() {
   const router = useRouter()
-
+  const { logout } = useAuth()
   const handleLogout = () => {
-    localStorage.removeItem('accessToken')
-    router.push('/')
+    logout()
+    router.push('/login')
   }
 
   return (
@@ -156,7 +157,12 @@ export default function HostAppointmentsPage() {
   }
 
   const closeDialog = () => {
-    setDialogState({ open: false, type: 'confirm', appointment: null, cancelReason: '' })
+    setDialogState({
+      open: false,
+      type: 'confirm',
+      appointment: null,
+      cancelReason: ''
+    })
   }
 
   const handleConfirm = async () => {
@@ -193,7 +199,11 @@ export default function HostAppointmentsPage() {
       setAppointments((prev) =>
         prev.map((apt) =>
           apt.id === appointmentId
-            ? { ...apt, status: 'CANCELLED' as const, cancelReason: dialogState.cancelReason }
+            ? {
+                ...apt,
+                status: 'CANCELLED' as const,
+                cancelReason: dialogState.cancelReason
+              }
             : apt
         )
       )
@@ -295,7 +305,7 @@ export default function HostAppointmentsPage() {
                     <TableHead>Date</TableHead>
                     <TableHead>Time</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className='text-right'>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -337,11 +347,11 @@ export default function HostAppointmentsPage() {
                             {statusConfig.label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className='text-right'>
                           {isPending && (
-                            <div className="flex items-center justify-end gap-2">
+                            <div className='flex items-center justify-end gap-2'>
                               {isLoading ? (
-                                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
                               ) : (
                                 <>
                                   <Button
@@ -445,20 +455,21 @@ export default function HostAppointmentsPage() {
                 Cancel Appointment
               </AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to cancel this appointment? Please provide a reason.
+                Are you sure you want to cancel this appointment? Please provide
+                a reason.
               </AlertDialogDescription>
-              <div className="pt-2">
-                <Label htmlFor="cancelReason" className="sr-only">
+              <div className='pt-2'>
+                <Label htmlFor='cancelReason' className='sr-only'>
                   Cancellation Reason
                 </Label>
                 <Textarea
-                  id="cancelReason"
-                  placeholder="e.g., Doctor is unavailable."
+                  id='cancelReason'
+                  placeholder='e.g., Doctor is unavailable.'
                   value={dialogState.cancelReason}
                   onChange={(e) =>
                     setDialogState((prev) => ({
                       ...prev,
-                      cancelReason: e.target.value,
+                      cancelReason: e.target.value
                     }))
                   }
                 />
