@@ -20,7 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2, Phone } from "lucide-react"
+import { register } from "@/services/auth.service"
 
 type UserRole = "GUEST" | "HOST"
 
@@ -29,6 +30,7 @@ export function RegisterForm() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [phone, setPhone] = useState("")
   const [role, setRole] = useState<UserRole | "">("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,27 +49,16 @@ export function RegisterForm() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password, role }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || "Registration failed")
-      }
-
+      await register({ name, email, password, phone, role });
       setSuccess(true)
 
       // Redirect to login page after short delay
       setTimeout(() => {
-        router.push("/")
+        router.push("/login")
       }, 1500)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+    } catch (err: any) {
+       const errorMessage = err.response?.data?.message || (err.message || "An unexpected error occurred");
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -93,7 +84,7 @@ export function RegisterForm() {
           )}
 
           {success && (
-            <div className="flex items-center gap-2 rounded-md bg-accent/10 p-3 text-sm text-accent">
+            <div className="flex items-center gap-2 rounded-md bg-green-500/15 p-3 text-sm text-green-500">
               <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
               <span>Registration successful! Redirecting to login...</span>
             </div>
@@ -132,6 +123,23 @@ export function RegisterForm() {
               />
             </div>
           </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="0912345678"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="pl-10"
+                required
+                disabled={isLoading || success}
+              />
+            </div>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -145,12 +153,12 @@ export function RegisterForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10"
                 required
-                minLength={8}
+                minLength={6}
                 disabled={isLoading || success}
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Must be at least 8 characters
+              Must be at least 6 characters
             </p>
           </div>
 
