@@ -165,7 +165,7 @@ export default function DashboardPage() {
 
         <div className='grid gap-8 lg:grid-cols-3'>
           {/* Left Column: Forms */}
-          <div className='lg:col-span-1 space-y-8'>
+          <div className='lg:col-span-2 space-y-8'>
             {isFormVisible ? (
               <AvailabilityRuleForm
                 onSuccess={handleSuccess}
@@ -184,7 +184,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Right Column: Rules List */}
-          <div className='lg:col-span-2'>
+          <div className='lg:col-span-1'>
             <Card>
               <CardHeader>
                 <CardTitle>Your Availability Rules</CardTitle>

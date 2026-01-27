@@ -80,19 +80,12 @@ function AdminDashboardHeader() {
 }
 
 export default function AdminDashboardPage() {
-  const { user: currentUser, isLoading: isAuthLoading } = useAuth()
+  const { user: currentUser } = useAuth()
   const router = useRouter()
 
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  // Route Protection
-  useEffect(() => {
-    if (!isAuthLoading && currentUser?.role !== "ADMIN") {
-      router.push("/") // Redirect non-admins
-    }
-  }, [currentUser, isAuthLoading, router])
 
   // Data Fetching
   useEffect(() => {
@@ -101,15 +94,16 @@ export default function AdminDashboardPage() {
         .then(setStats)
         .catch((err) =>
           setError(
-            err instanceof Error ? err.message : "An error occurred fetching stats."
+            err instanceof Error
+              ? err.message
+              : "An error occurred fetching stats."
           )
         )
         .finally(() => setLoading(false))
     }
   }, [currentUser])
 
-  // Render loading state while auth is being checked
-  if (isAuthLoading || !currentUser || currentUser.role !== "ADMIN") {
+  if (!currentUser) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

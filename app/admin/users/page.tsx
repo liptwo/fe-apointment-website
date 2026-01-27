@@ -121,7 +121,7 @@ function AdminHeader() {
 // --- Main Page Component ---
 
 export default function AdminUsersPage() {
-  const { user: currentUser, isLoading: isAuthLoading } = useAuth()
+  const { user: currentUser } = useAuth()
   const router = useRouter()
 
   const [users, setUsers] = useState<User[]>([])
@@ -142,13 +142,6 @@ export default function AdminUsersPage() {
     action: "disable",
   })
 
-  // --- Route Protection ---
-  useEffect(() => {
-    if (!isAuthLoading && currentUser?.role !== "ADMIN") {
-      router.push("/") // Redirect non-admins
-    }
-  }, [currentUser, isAuthLoading, router])
-  
   // --- Data Fetching ---
   useEffect(() => {
     if (currentUser?.role === "ADMIN") {
@@ -220,9 +213,7 @@ export default function AdminUsersPage() {
       byRole: `${hostCount} Hosts / ${guestCount} Guests (on this page)`,
     }
   }, [users, meta])
-
-  // Render loading state while auth is being checked
-  if (isAuthLoading || !currentUser || currentUser.role !== "ADMIN") {
+  if (!currentUser) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

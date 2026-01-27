@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useState, useEffect, useContext } from 'react'
+import Cookies from 'js-cookie'
 import { User, LoginPayload } from '@/types'
 import {
   login as loginService,
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Effect to load user data on initial mount
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = localStorage.getItem('accessToken')
+      const token = Cookies.get('accessToken')
       if (token) {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`
         try {
@@ -39,8 +40,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // If token is invalid, clear it
           setUser(null)
           delete api.defaults.headers.common['Authorization']
-          localStorage.removeItem('accessToken')
-          localStorage.removeItem('user')
+          Cookies.remove('accessToken')
+          Cookies.remove('user')
         }
       }
       setIsLoading(false)
@@ -53,8 +54,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const response = await loginService(data)
     const { accessToken, user } = response
 
-    localStorage.setItem('accessToken', accessToken)
-    localStorage.setItem('user', JSON.stringify(user)) // Store user data
+    Cookies.set('accessToken', accessToken, { expires: 1, secure: true, sameSite: 'strict' })
+    Cookies.set('user', JSON.stringify(user), { expires: 1, secure: true, sameSite: 'strict' })
 
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
 
@@ -71,8 +72,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setUser(null)
       delete api.defaults.headers.common['Authorization']
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('user')
+      Cookies.remove('accessToken')
+      Cookies.remove('user')
     }
   }
 
