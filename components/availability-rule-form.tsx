@@ -36,6 +36,8 @@ const HOURS = Array.from({ length: 24 }, (_, i) => ({
   label: i.toString().padStart(2, "0") + ":00",
 }))
 
+import { createAvailabilityRule } from "@/services/availability.service"
+import { Input } from "./ui/input"
 interface AvailabilityRuleFormProps {
   onSuccess?: () => void
 }
@@ -78,25 +80,13 @@ export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/availability-rules", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify({
-          ruleType: "WEEKLY",
-          startHour: Number(startHour),
-          endHour: Number(endHour),
-          daysOfWeek: selectedDays.join(","),
-          isActive,
-        }),
+      await createAvailabilityRule({
+        ruleType: "WEEKLY",
+        startHour: Number(startHour),
+        endHour: Number(endHour),
+        daysOfWeek: selectedDays.join(","),
+        isActive,
       })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || "Failed to save availability rule")
-      }
 
       setSuccess(true)
 

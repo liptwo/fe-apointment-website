@@ -1,6 +1,9 @@
-"use client"
-
-import React, { useState, useEffect } from "react"
+import {
+  getMyAppointments,
+  confirmAppointment,
+  cancelAppointment,
+} from "@/services/availability.service"
+import "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
@@ -36,6 +39,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
 
 interface Appointment {
   id: string
@@ -133,62 +137,12 @@ export default function HostAppointmentsPage() {
   const fetchAppointments = async () => {
     setLoading(true)
     setError(null)
-
     try {
-      const token = localStorage.getItem("accessToken")
-      const response = await fetch("/api/appointments/my", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch appointments")
-      }
-
-      const data = await response.json()
+      const data = await getMyAppointments()
       setAppointments(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
-      // Mock data for demo purposes
-      setAppointments([
-        {
-          id: "1",
-          status: "PENDING",
-          patientName: "John Smith",
-          timeSlot: { startTime: new Date(Date.now() + 86400000 * 1).toISOString() },
-        },
-        {
-          id: "2",
-          status: "PENDING",
-          patientName: "Emily Johnson",
-          timeSlot: { startTime: new Date(Date.now() + 86400000 * 2).toISOString() },
-        },
-        {
-          id: "3",
-          status: "CONFIRMED",
-          patientName: "Michael Brown",
-          timeSlot: { startTime: new Date(Date.now() + 86400000 * 3).toISOString() },
-        },
-        {
-          id: "4",
-          status: "COMPLETED",
-          patientName: "Sarah Davis",
-          timeSlot: { startTime: new Date(Date.now() - 86400000 * 2).toISOString() },
-        },
-        {
-          id: "5",
-          status: "CANCELLED",
-          patientName: "David Wilson",
-          timeSlot: { startTime: new Date(Date.now() - 86400000 * 1).toISOString() },
-        },
-        {
-          id: "6",
-          status: "PENDING",
-          patientName: "Lisa Anderson",
-          timeSlot: { startTime: new Date(Date.now() + 86400000 * 4).toISOString() },
-        },
-      ])
+      setAppointments([]) // Clear data on error
     } finally {
       setLoading(false)
     }
@@ -210,30 +164,14 @@ export default function HostAppointmentsPage() {
     closeDialog()
 
     try {
-      const token = localStorage.getItem("accessToken")
-      const response = await fetch(`/api/appointments/${appointmentId}/confirm`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to confirm appointment")
-      }
-
+      await confirmAppointment(appointmentId)
       setAppointments((prev) =>
         prev.map((apt) =>
           apt.id === appointmentId ? { ...apt, status: "CONFIRMED" as const } : apt
         )
       )
     } catch (err) {
-      // For demo: update locally anyway
-      setAppointments((prev) =>
-        prev.map((apt) =>
-          apt.id === appointmentId ? { ...apt, status: "CONFIRMED" as const } : apt
-        )
-      )
+      // Handle error notification if needed
     } finally {
       setActionLoading(null)
     }
@@ -247,30 +185,14 @@ export default function HostAppointmentsPage() {
     closeDialog()
 
     try {
-      const token = localStorage.getItem("accessToken")
-      const response = await fetch(`/api/appointments/${appointmentId}/cancel`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to cancel appointment")
-      }
-
+      await cancelAppointment(appointmentId)
       setAppointments((prev) =>
         prev.map((apt) =>
           apt.id === appointmentId ? { ...apt, status: "CANCELLED" as const } : apt
         )
       )
     } catch (err) {
-      // For demo: update locally anyway
-      setAppointments((prev) =>
-        prev.map((apt) =>
-          apt.id === appointmentId ? { ...apt, status: "CANCELLED" as const } : apt
-        )
-      )
+      // Handle error notification if needed
     } finally {
       setActionLoading(null)
     }
@@ -323,7 +245,7 @@ export default function HostAppointmentsPage() {
         {/* Error State */}
         {error && !loading && (
           <div className="mb-4 rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
-            Note: Using demo data. {error}
+            {error}
           </div>
         )}
 
