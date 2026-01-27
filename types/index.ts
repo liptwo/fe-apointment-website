@@ -56,3 +56,40 @@ export interface UpdateUserStatusResponse {
     is_active: boolean;
     updated_at: string;
 }
+
+// --- Appointments ---
+
+export interface BookingPayload {
+  hostId: string;
+  timeSlotId: string;
+  reason: string;
+}
+
+export interface PublicBookingPayload extends BookingPayload {
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+}
+
+export interface Appointment {
+  id: string;
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+  hostId?: string;
+  guestId?: string | null;
+  reason: string;
+  timeSlot: {
+    startTime: string;
+    endTime: string;
+    date?: string;
+  };
+  host?: {
+    name: string;
+    email: string;
+  };
+  guest?: {
+    name: string;
+    email: string;
+  };
+  createdAt: string;
+  cancelReason?: string | null;
+}

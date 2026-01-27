@@ -10,6 +10,9 @@ import {
   Clock,
   Loader2,
   CheckCircle,
+  User as UserIcon,
+  Mail,
+  Phone,
 } from "lucide-react"
 import { AppHeader } from "@/components/app-header"
 import { Button } from "@/components/ui/button"
@@ -22,8 +25,16 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useAuth } from "@/providers/auth-provider"
+import { getHostById } from "@/services/host.service"
+import { getTimeslotsByHostId } from "@/services/timeslot.service"
+import {
+  createAppointment,
+  createPublicAppointment,
+} from "@/services/appointment.service"
 
 interface Host {
   id: string
@@ -36,84 +47,62 @@ interface TimeSlot {
   date: string
   startLabel: string
   endLabel: string
-}
-
-interface BookingResponse {
-  id: string
-  status: string
-  timeSlot: {
-    startTime: string
-    endTime: string
-  }
+  isAvailable: boolean
 }
 
 export default function BookingPage() {
   const params = useParams()
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { user } = useAuth()
 
   const hostId = params.id as string
-  const slotId = searchParams.get("slot")
-  const dateParam = searchParams.get("date")
+  const timeSlotId = searchParams.get("timeslotId")
 
   const [host, setHost] = useState<Host | null>(null)
   const [timeSlot, setTimeSlot] = useState<TimeSlot | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [reason, setReason] = useState("")
+
+  // State for anonymous booking
+  const [guestName, setGuestName] = useState("")
+  const [guestEmail, setGuestEmail] = useState("")
+  const [guestPhone, setGuestPhone] = useState("")
+
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
   // Fetch host and time slot info
   useEffect(() => {
     async function fetchData() {
+      if (!hostId || !timeSlotId) {
+        setError("Host or Time Slot information is missing.")
+        setLoading(false)
+        return
+      }
       setLoading(true)
       try {
-        // Fetch host info
-        const hostResponse = await fetch(`/api/hosts/${hostId}`)
-        if (hostResponse.ok) {
-          const hostData = await hostResponse.json()
-          setHost(hostData)
-        } else {
-          throw new Error("Failed to fetch host")
-        }
+        const hostData = await getHostById(hostId)
+        setHost(hostData)
 
-        // Fetch time slot info
-        if (slotId && dateParam) {
-          const slotResponse = await fetch(
-            `/api/hosts/${hostId}/timeslots?date=${dateParam}`
-          )
-          if (slotResponse.ok) {
-            const slotsData = await slotResponse.json()
-            const slot = slotsData.find((s: TimeSlot) => s.id === slotId)
-            if (slot) {
-              setTimeSlot(slot)
-            }
-          }
+        const allSlots = await getTimeslotsByHostId(hostId)
+        const selectedSlot = allSlots.find((s: TimeSlot) => s.id === timeSlotId)
+
+        if (selectedSlot) {
+          setTimeSlot(selectedSlot)
+        } else {
+          throw new Error("The selected time slot could not be found.")
         }
       } catch (err) {
-        // Demo data for preview
-        setHost({
-          id: hostId,
-          name: "Dr. Sarah Johnson",
-          specialty: "Cardiology",
-        })
-
-        if (slotId && dateParam) {
-          setTimeSlot({
-            id: slotId,
-            date: dateParam,
-            startLabel: "09:00",
-            endLabel: "09:30",
-          })
-        }
+        setError(err instanceof Error ? err.message : "Failed to load booking details.")
       } finally {
         setLoading(false)
       }
     }
 
     fetchData()
-  }, [hostId, slotId, dateParam])
+  }, [hostId, timeSlotId])
 
   const formatDateDisplay = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -128,7 +117,7 @@ export default function BookingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!slotId || !reason.trim()) {
+    if (!timeSlotId || !reason.trim()) {
       setError("Please provide a reason for your visit")
       return
     }
@@ -137,37 +126,35 @@ export default function BookingPage() {
     setError(null)
 
     try {
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify({
+      if (user) {
+        // Authenticated user booking
+        await createAppointment({
           hostId,
-          timeSlotId: slotId,
+          timeSlotId,
           reason: reason.trim(),
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Failed to book appointment")
+        })
+      } else {
+        // Anonymous user booking
+        if (!guestName.trim() || !guestEmail.trim()) {
+          throw new Error("Please provide your name and email.")
+        }
+        await createPublicAppointment({
+          hostId,
+          timeSlotId,
+          reason: reason.trim(),
+          guestName: guestName.trim(),
+          guestEmail: guestEmail.trim(),
+          guestPhone: guestPhone.trim(),
+        })
       }
 
-      const data: BookingResponse = await response.json()
       setSuccess(true)
-
-      // Redirect to My Appointments after short delay
+      // Redirect to My Appointments after short delay if logged in
       setTimeout(() => {
-        router.push("/appointments")
-      }, 2000)
+        router.push(user ? "/appointments" : "/")
+      }, 3000)
     } catch (err) {
-      // Demo: simulate success for preview
-      setSuccess(true)
-      setTimeout(() => {
-        router.push("/appointments")
-      }, 2000)
+      setError(err instanceof Error ? err.message : "Failed to book appointment.")
     } finally {
       setSubmitting(false)
     }
@@ -192,7 +179,7 @@ export default function BookingPage() {
                     Your appointment has been successfully scheduled.
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Redirecting to My Appointments...
+                    You will be redirected shortly.
                   </p>
                 </div>
               </CardContent>
@@ -226,128 +213,86 @@ export default function BookingPage() {
             <CardHeader>
               <CardTitle>Confirm Your Appointment</CardTitle>
               <CardDescription>
-                Review the details below and provide a reason for your visit.
+                Review the details below and provide your information.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Doctor Info (Readonly) */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-foreground">
-                    Provider
-                  </Label>
-                  {loading ? (
-                    <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <div className="flex-1">
-                        <Skeleton className="h-5 w-32" />
-                        <Skeleton className="mt-1 h-4 w-20" />
+                {/* Doctor and Time Slot Info */}
+                {loading ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                  </div>
+                ) : (
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {host && (
+                      <div className="space-y-2">
+                        <Label>Provider</Label>
+                        <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-3">
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <Stethoscope className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">{host.name}</p>
+                            <Badge variant="secondary" className="mt-1">{host.specialty}</Badge>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ) : host ? (
-                    <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Stethoscope className="h-5 w-5" />
+                    )}
+                    {timeSlot && (
+                      <div className="space-y-2">
+                        <Label>Appointment Time</Label>
+                        <div className="rounded-lg border border-border bg-muted/50 p-3">
+                          <div className="flex items-center gap-2 text-foreground">
+                            <Calendar className="h-4 w-4 text-primary" />
+                            <span className="font-medium">{formatDateDisplay(timeSlot.date)}</span>
+                          </div>
+                          <div className="mt-1 flex items-center gap-2 text-muted-foreground">
+                            <Clock className="h-4 w-4 text-primary" />
+                            <span>{timeSlot.startLabel} - {timeSlot.endLabel}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {host.name}
-                        </p>
-                        <Badge variant="secondary" className="mt-1">
-                          {host.specialty}
-                        </Badge>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
-                      Provider information unavailable
-                    </div>
-                  )}
-                </div>
-
-                {/* Time Slot Info (Readonly) */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-foreground">
-                    Appointment Time
-                  </Label>
-                  {loading ? (
-                    <div className="rounded-lg border border-border bg-muted/50 p-4">
-                      <Skeleton className="h-5 w-48" />
-                      <Skeleton className="mt-2 h-4 w-32" />
-                    </div>
-                  ) : timeSlot && dateParam ? (
-                    <div className="rounded-lg border border-border bg-muted/50 p-4">
-                      <div className="flex items-center gap-2 text-foreground">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        <span className="font-medium">
-                          {formatDateDisplay(dateParam)}
-                        </span>
-                      </div>
-                      <div className="mt-2 flex items-center gap-2 text-muted-foreground">
-                        <Clock className="h-4 w-4 text-primary" />
-                        <span>
-                          {timeSlot.startLabel} - {timeSlot.endLabel}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
-                      Time slot information unavailable
-                    </div>
-                  )}
-                </div>
-
-                {/* Reason Textarea */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="reason"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    Reason for Visit
-                  </Label>
-                  <Textarea
-                    id="reason"
-                    placeholder="Please describe your symptoms or reason for this appointment..."
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    className="min-h-32 resize-none"
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    This information helps the provider prepare for your visit.
-                  </p>
-                </div>
-
-                {/* Error Message */}
-                {error && (
-                  <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-                    {error}
+                    )}
                   </div>
                 )}
 
-                {/* Submit Button */}
+                {/* Guest Info Form (for anonymous users) */}
+                {!user && !loading && (
+                  <div className="space-y-4 rounded-lg border border-border p-4">
+                    <h3 className="text-sm font-medium">Your Information</h3>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="guestName">Full Name</Label>
+                        <Input id="guestName" value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="John Doe" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="guestEmail">Email</Label>
+                        <Input id="guestEmail" type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="john@example.com" required />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guestPhone">Phone Number (Optional)</Label>
+                      <Input id="guestPhone" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} placeholder="0912345678" />
+                    </div>
+                  </div>
+                )}
+                
+                {/* Reason Textarea */}
+                <div className="space-y-2">
+                  <Label htmlFor="reason">Reason for Visit</Label>
+                  <Textarea id="reason" placeholder="e.g., Annual check-up, specific symptom..." value={reason} onChange={(e) => setReason(e.target.value)} className="min-h-24 resize-none" required />
+                </div>
+
+                {error && <p className="text-sm text-destructive">{error}</p>}
+
                 <div className="flex gap-3 pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1 bg-transparent"
-                    asChild
-                  >
+                  <Button type="button" variant="outline" className="flex-1 bg-transparent" asChild>
                     <Link href={`/hosts/${hostId}`}>Cancel</Link>
                   </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1"
-                    disabled={submitting || !reason.trim()}
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Booking...
-                      </>
-                    ) : (
-                      "Confirm Booking"
-                    )}
+                  <Button type="submit" className="flex-1" disabled={submitting || loading || !reason.trim()}>
+                    {submitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Booking...</>) : "Confirm Booking"}
                   </Button>
                 </div>
               </form>

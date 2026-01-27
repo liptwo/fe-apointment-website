@@ -18,6 +18,11 @@ export const getUsers = async ({ page, limit, role }: GetUsersParams): Promise<P
   return response.data;
 };
 
+export const getUserById = async (id: string): Promise<User> => {
+  const response = await api.get<User>(`/users/${id}`);
+  return response.data;
+};
+
 export const updateUserStatus = async (id: string, active: boolean): Promise<UpdateUserStatusResponse> => {
   const response = await api.patch<UpdateUserStatusResponse>(`/users/${id}/status?active=${active}`);
   return response.data;

@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   UserCheck,
+  BarChart,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -79,7 +80,7 @@ function AdminHeader() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/admin/users" className="flex items-center gap-3">
+          <Link href="/admin/dashboard" className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Heart className="h-4 w-4" />
             </div>
@@ -89,6 +90,12 @@ function AdminHeader() {
             </Badge>
           </Link>
           <nav className="hidden sm:flex items-center gap-1">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/admin/dashboard" className="text-muted-foreground hover:text-foreground">
+                <BarChart className="h-4 w-4 mr-2" />
+                Dashboard
+              </Link>
+            </Button>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/admin/users" className="text-foreground bg-secondary">
                 <Users className="h-4 w-4 mr-2" />
