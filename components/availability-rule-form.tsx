@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -20,6 +20,10 @@ import {
 } from "@/components/ui/select"
 import { Loader2, AlertCircle, CheckCircle2, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
+import {
+  createAvailabilityRule,
+  updateAvailabilityRule,
+} from "@/services/availability.service"
 
 const DAYS_OF_WEEK = [
   { value: "MON", label: "Mon" },
@@ -36,13 +40,17 @@ const HOURS = Array.from({ length: 24 }, (_, i) => ({
   label: i.toString().padStart(2, "0") + ":00",
 }))
 
-import { createAvailabilityRule } from "@/services/availability.service"
-import { Input } from "./ui/input"
 interface AvailabilityRuleFormProps {
-  onSuccess?: () => void
+  onSuccess: () => void
+  onCancel: () => void
+  initialData?: any | null
 }
 
-export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
+export function AvailabilityRuleForm({
+  onSuccess,
+  onCancel,
+  initialData,
+}: AvailabilityRuleFormProps) {
   const [selectedDays, setSelectedDays] = useState<string[]>([])
   const [startHour, setStartHour] = useState<string>("")
   const [endHour, setEndHour] = useState<string>("")
@@ -50,6 +58,26 @@ export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  const isEditMode = Boolean(initialData)
+
+  useEffect(() => {
+    if (initialData) {
+      setSelectedDays(initialData.days_of_week?.split(",") || [])
+      setStartHour(initialData.start_hour?.toString() || "")
+      setEndHour(initialData.end_hour?.toString() || "")
+      setIsActive(initialData.is_active)
+    } else {
+      // Reset form when switching to create mode
+      setSelectedDays([])
+      setStartHour("")
+      setEndHour("")
+      setIsActive(true)
+    }
+    // Clear status messages when form mode changes
+    setError(null)
+    setSuccess(false)
+  }, [initialData])
 
   const toggleDay = (day: string) => {
     setSelectedDays((prev) =>
@@ -78,27 +106,24 @@ export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
     }
 
     setIsLoading(true)
+    const payload = {
+      ruleType: "WEEKLY",
+      startHour: Number(startHour),
+      endHour: Number(endHour),
+      daysOfWeek: selectedDays.join(","),
+      isActive,
+    }
 
     try {
-      await createAvailabilityRule({
-        ruleType: "WEEKLY",
-        startHour: Number(startHour),
-        endHour: Number(endHour),
-        daysOfWeek: selectedDays.join(","),
-        isActive,
-      })
-
+      if (isEditMode) {
+        await updateAvailabilityRule(initialData.id, payload)
+      } else {
+        await createAvailabilityRule(payload)
+      }
       setSuccess(true)
-
-      // Reset form after short delay
       setTimeout(() => {
-        setSelectedDays([])
-        setStartHour("")
-        setEndHour("")
-        setIsActive(true)
-        setSuccess(false)
-        onSuccess?.()
-      }, 1500)
+        onSuccess()
+      }, 1000)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
@@ -115,10 +140,12 @@ export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
           </div>
           <div>
             <CardTitle className="text-xl font-semibold">
-              Availability Rule
+              {isEditMode ? "Edit Rule" : "Create New Rule"}
             </CardTitle>
             <CardDescription>
-              Set your weekly availability schedule
+              {isEditMode
+                ? "Update your availability schedule."
+                : "Set your weekly availability schedule."}
             </CardDescription>
           </div>
         </div>
@@ -135,11 +162,10 @@ export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
           {success && (
             <div className="flex items-center gap-2 rounded-md bg-accent/10 p-3 text-sm text-accent">
               <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-              <span>Availability rule saved successfully!</span>
+              <span>Rule saved successfully!</span>
             </div>
           )}
 
-          {/* Days of Week Multi-Select */}
           <div className="space-y-3">
             <Label>Days of Week</Label>
             <div className="flex flex-wrap gap-2">
@@ -160,22 +186,12 @@ export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
                 </button>
               ))}
             </div>
-            {selectedDays.length > 0 && (
-              <p className="text-xs text-muted-foreground">
-                Selected: {selectedDays.join(", ")}
-              </p>
-            )}
           </div>
 
-          {/* Time Range */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startHour">Start Hour</Label>
-              <Select
-                value={startHour}
-                onValueChange={setStartHour}
-                disabled={isLoading || success}
-              >
+              <Select value={startHour} onValueChange={setStartHour} disabled={isLoading || success}>
                 <SelectTrigger id="startHour">
                   <SelectValue placeholder="Select start" />
                 </SelectTrigger>
@@ -188,14 +204,9 @@ export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
                 </SelectContent>
               </Select>
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="endHour">End Hour</Label>
-              <Select
-                value={endHour}
-                onValueChange={setEndHour}
-                disabled={isLoading || success}
-              >
+              <Select value={endHour} onValueChange={setEndHour} disabled={isLoading || success}>
                 <SelectTrigger id="endHour">
                   <SelectValue placeholder="Select end" />
                 </SelectTrigger>
@@ -210,20 +221,6 @@ export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
             </div>
           </div>
 
-          {/* Preview */}
-          {startHour && endHour && Number(startHour) < Number(endHour) && (
-            <div className="rounded-lg bg-muted/50 p-3">
-              <p className="text-sm text-muted-foreground">
-                Time range:{" "}
-                <span className="font-medium text-foreground">
-                  {startHour.padStart(2, "0")}:00 - {endHour.padStart(2, "0")}:00
-                </span>
-                {" "}({Number(endHour) - Number(startHour)} hours)
-              </p>
-            </div>
-          )}
-
-          {/* Active Toggle */}
           <div className="flex items-center justify-between rounded-lg border border-border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="isActive" className="text-base font-medium">
@@ -233,34 +230,28 @@ export function AvailabilityRuleForm({ onSuccess }: AvailabilityRuleFormProps) {
                 Enable this availability rule
               </p>
             </div>
-            <Switch
-              id="isActive"
-              checked={isActive}
-              onCheckedChange={setIsActive}
-              disabled={isLoading || success}
-            />
+            <Switch id="isActive" checked={isActive} onCheckedChange={setIsActive} disabled={isLoading || success}/>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            size="lg"
-            disabled={isLoading || success}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : success ? (
-              <>
-                <CheckCircle2 className="h-4 w-4" />
-                Saved
-              </>
-            ) : (
-              "Save Availability Rule"
-            )}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2">
+             <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isLoading}
+             >
+                Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || success}
+            >
+              {isLoading ? (<><Loader2 className="h-4 w-4 animate-spin" /> Saving...</>)
+              : success ? (<><CheckCircle2 className="h-4 w-4" /> Saved</>)
+              : isEditMode ? "Update Rule" : "Create Rule"}
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>

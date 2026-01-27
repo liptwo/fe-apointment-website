@@ -2,7 +2,7 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react'
 import { User, LoginPayload } from '@/types'
-import { login as loginService } from '@/services/auth.service'
+import { login as loginService, getMe, logout as logoutService } from '@/services/auth.service'
 import api from '@/lib/axios'
 
 // 1. Define the shape of the context data
@@ -26,17 +26,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('accessToken')
       if (token) {
-        // Set token for all subsequent API requests
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-
-        // Fetch user data from localStorage (simple approach)
-        // A better approach would be to have a '/auth/me' endpoint
-        const storedUser = localStorage.getItem('user')
-        if (storedUser) {
-          setUser(JSON.parse(storedUser))
-        } else {
-          // If user not in storage, clear token as it's a broken state
+        try {
+          // Fetch user data from the /auth/me endpoint
+          const userData = await getMe()
+          setUser(userData)
+        } catch (error) {
+          // If token is invalid, clear it
+          setUser(null)
+          delete api.defaults.headers.common['Authorization']
           localStorage.removeItem('accessToken')
+          localStorage.removeItem('userId')
         }
       }
       setIsLoading(false)
@@ -49,24 +49,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const response = await loginService(data)
     const { accessToken, user } = response
 
-    // Store token and user data
-    // NOTE: In production, consider more secure storage like httpOnly cookies.
     localStorage.setItem('accessToken', accessToken)
-    localStorage.setItem('user', JSON.stringify(user))
+    localStorage.setItem('userId', user.id) // Store userId
 
-    // Set token for all subsequent API requests
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
 
     setUser(user)
-    return user // Return the user object
+    return user
   }
 
-  const logout = () => {
-    // Clear user data and tokens
-    setUser(null)
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('user')
-    delete api.defaults.headers.common['Authorization']
+  const logout = async () => {
+    try {
+      await logoutService()
+    } catch (error) {
+      console.error("Logout failed", error)
+      // Still proceed with client-side cleanup
+    } finally {
+      setUser(null)
+      delete api.defaults.headers.common['Authorization']
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('userId')
+    }
   }
 
   return (

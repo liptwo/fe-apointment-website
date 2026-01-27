@@ -11,3 +11,13 @@ export const login = async (data: LoginPayload): Promise<LoginResponse> => {
   const response = await api.post<LoginResponse>("/auth/login", data);
   return response.data;
 };
+
+export const getMe = async (): Promise<User> => {
+  const response = await api.get<User>("/auth/me");
+  return response.data;
+}
+
+export const logout = async (): Promise<{ message: string }> => {
+  const response = await api.post<{ message: string }>("/auth/logout");
+  return response.data;
+}

@@ -15,3 +15,13 @@ export const getAvailabilityRules = async (hostId: string) => {
   return response.data
 }
 
+export const updateAvailabilityRule = async (id: string, data: any) => {
+  const response = await api.patch(`/availability-rules/${id}`, data);
+  return response.data;
+}
+
+export const deleteAvailabilityRule = async (id: string) => {
+  const response = await api.delete(`/availability-rules/${id}`);
+  return response.data;
+}
+
