@@ -8,11 +8,7 @@ import api from '@/lib/axios'
 // 1. Define the shape of the context data
 interface AuthContextType {
   user: User | null
-<<<<<<< HEAD
   login: (data: LoginPayload) => Promise<User>
-=======
-  login: (data: LoginPayload) => Promise<void>
->>>>>>> fa0fe52aeeff5d87eb2729e288be0365ba685a8b
   logout: () => void
   isLoading: boolean
 }
@@ -62,10 +58,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
 
     setUser(user)
-<<<<<<< HEAD
     return user // Return the user object
-=======
->>>>>>> fa0fe52aeeff5d87eb2729e288be0365ba685a8b
   }
 
   const logout = () => {

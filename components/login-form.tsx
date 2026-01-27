@@ -16,10 +16,7 @@ import {
 } from '@/components/ui/card'
 import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/providers/auth-provider'
-<<<<<<< HEAD
-import { User } from '@/types'
-=======
->>>>>>> fa0fe52aeeff5d87eb2729e288be0365ba685a8b
+// import { User } from '@/types'
 
 export function LoginForm() {
   const router = useRouter()
@@ -35,11 +32,7 @@ export function LoginForm() {
     setIsLoading(true)
 
     try {
-<<<<<<< HEAD
-      const user: User = await login({ email, password })
-=======
       const user = await login({ email, password })
->>>>>>> fa0fe52aeeff5d87eb2729e288be0365ba685a8b
 
       // Role-based redirect
       switch (user.role) {
