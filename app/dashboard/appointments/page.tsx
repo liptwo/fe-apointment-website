@@ -99,6 +99,14 @@ function DashboardHeader() {
                 Appointments
               </Link>
             </Button>
+            <Button variant='ghost' size='sm' asChild>
+              <Link
+                href='/dashboard/profile'
+                className='text-muted-foreground hover:text-foreground'
+              >
+                Edit Profile
+              </Link>
+            </Button>
           </nav>
         </div>
 
@@ -310,7 +318,10 @@ export default function HostAppointmentsPage() {
                 </TableHeader>
                 <TableBody>
                   {appointments.map((appointment) => {
-                    const statusConfig = STATUS_STYLES[appointment.status]
+                    const statusConfig = STATUS_STYLES[appointment.status] || {
+                      variant: 'outline' as const,
+                      label: appointment.status || 'Unknown'
+                    }
                     const isPending = appointment.status === 'PENDING'
                     const isLoading = actionLoading === appointment.id
 

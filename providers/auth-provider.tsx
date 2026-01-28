@@ -16,6 +16,7 @@ interface AuthContextType {
   login: (data: LoginPayload) => Promise<User>
   logout: () => void
   isLoading: boolean
+  updateUserInfo: (updatedUser: User) => void
 }
 
 // 2. Create the context with a default value
@@ -29,56 +30,108 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Effect to load user data on initial mount
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = Cookies.get('accessToken')
-      if (token) {
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        try {
-          // Fetch user data from the /auth/me endpoint
-          const userData = await getMe()
-          setUser(userData)
-        } catch (error) {
-          // If token is invalid, clear it
-          setUser(null)
-          delete api.defaults.headers.common['Authorization']
-          Cookies.remove('accessToken')
+      try {
+        const token = Cookies.get('accessToken')
+        const userCookie = Cookies.get('user')
+
+        // If we have a token, verify it's still valid
+        if (token) {
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+          try {
+            // Fetch user data from the /auth/me endpoint
+            const userData = await getMe()
+            setUser(userData)
+          } catch (error) {
+            // If token is invalid, clear it
+            console.error('Token validation failed:', error)
+            setUser(null)
+            delete api.defaults.headers.common['Authorization']
+            Cookies.remove('accessToken')
+            Cookies.remove('refreshToken')
+            Cookies.remove('user')
+          }
+        } else if (userCookie) {
+          // Clear stale user cookie if no token
           Cookies.remove('user')
+          setUser(null)
         }
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+        setUser(null)
+      } finally {
+        setIsLoading(false)
       }
-      setIsLoading(false)
     }
 
     initializeAuth()
   }, [])
 
   const login = async (data: LoginPayload) => {
-    const response = await loginService(data)
-    const { accessToken, user } = response
+    try {
+      const response = await loginService(data)
+      const { accessToken, refreshToken, user } = response
 
-    Cookies.set('accessToken', accessToken, { expires: 1, secure: true, sameSite: 'strict' })
-    Cookies.set('user', JSON.stringify(user), { expires: 1, secure: true, sameSite: 'strict' })
+      // Store tokens in cookies with proper settings
+      Cookies.set('accessToken', accessToken, {
+        expires: 7,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      })
 
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+      if (refreshToken) {
+        Cookies.set('refreshToken', refreshToken, {
+          expires: 30,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+      }
 
-    setUser(user)
-    return user
+      Cookies.set('user', JSON.stringify(user), {
+        expires: 7,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      })
+
+      // Set default header for axios
+      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+
+      setUser(user)
+      return user
+    } catch (error) {
+      console.error('Login error:', error)
+      throw error
+    }
   }
 
   const logout = async () => {
     try {
       await logoutService()
     } catch (error) {
-      console.error('Logout failed', error)
-      // Still proceed with client-side cleanup
+      console.error('Logout error (continuing with cleanup):', error)
+      // Continue with cleanup even if logout API fails
     } finally {
+      // Clear all auth-related data
       setUser(null)
       delete api.defaults.headers.common['Authorization']
       Cookies.remove('accessToken')
+      Cookies.remove('refreshToken')
       Cookies.remove('user')
     }
   }
 
+  const updateUserInfo = (updatedUser: User) => {
+    setUser(updatedUser)
+    Cookies.set('user', JSON.stringify(updatedUser), {
+      expires: 7,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, isLoading, updateUserInfo }}
+    >
       {children}
     </AuthContext.Provider>
   )

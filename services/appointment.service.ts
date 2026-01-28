@@ -1,18 +1,11 @@
 // services/appointment.service.ts
 import api from '../lib/axios'
-import { Appointment, BookingPayload, PublicBookingPayload } from '@/types' // Assuming these types will be added to types/index.ts
+import { Appointment, BookingPayload } from '@/types' // Assuming these types will be added to types/index.ts
 
 export const createAppointment = async (
   payload: BookingPayload
 ): Promise<Appointment> => {
   const response = await api.post<Appointment>('/appointments', payload)
-  return response.data
-}
-
-export const createPublicAppointment = async (
-  payload: PublicBookingPayload
-): Promise<Appointment> => {
-  const response = await api.post<Appointment>('/appointments/public', payload)
   return response.data
 }
 
