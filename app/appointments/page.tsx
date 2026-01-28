@@ -185,7 +185,10 @@ export default function MyAppointmentsPage() {
                 </TableHeader>
                 <TableBody>
                   {appointments.map((appointment) => {
-                    const statusConfig = STATUS_STYLES[appointment.status]
+                    const statusConfig = STATUS_STYLES[appointment.status] || {
+                      variant: 'outline' as const,
+                      label: appointment.status || 'Unknown'
+                    }
                     const canCancel =
                       appointment.status === 'PENDING' ||
                       appointment.status === 'CONFIRMED'
