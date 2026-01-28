@@ -106,30 +106,26 @@ export default function MyAppointmentsPage() {
     }
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
     try {
       if (!dateString) return '---'
-      return format(parseISO(dateString), 'MMM dd, yyyy')
+      const date = parseISO(dateString)
+      if (!isValid(date)) return '---'
+      return format(date, 'MMM dd, yyyy')
     } catch (error) {
-      return 'Lỗi ngày'
+      return '---'
     }
   }
 
-  const formatTime = (dateString: string | null | undefined) => {
-    if (!dateString) return '--:--'
-
-    // parseISO xử lý chuỗi từ Database (ISO 8601) tốt hơn new Date()
-    const date = parseISO(dateString)
-
-    if (!isValid(date)) {
-      // Nếu vẫn lỗi, thử parse chuỗi thủ công nếu đó là định dạng "HH:mm"
-      const fallbackDate = new Date(`1970-01-01T${dateString}`)
-      return isValid(fallbackDate)
-        ? format(fallbackDate, 'hh:mm a')
-        : 'Invalid Time'
+  const formatTime = (dateString: string | undefined) => {
+    try {
+      if (!dateString) return '--:--'
+      const date = parseISO(dateString)
+      if (!isValid(date)) return '--:--'
+      return format(date, 'hh:mm a')
+    } catch (error) {
+      return '--:--'
     }
-
-    return format(date, 'hh:mm a')
   }
   return (
     <div className='min-h-screen bg-background'>

@@ -26,6 +26,7 @@ interface Host {
   name: string
   specialty: string
   // description is not available on this endpoint
+  description?: string
 }
 
 interface TimeSlot {
@@ -197,6 +198,12 @@ export default function HostDetailPage() {
                         <Badge variant='secondary' className='mt-2'>
                           {host.specialty}
                         </Badge>
+
+                        {host.description && (
+                          <p className='mt-4 text-sm text-muted-foreground'>
+                            {host.description}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -31,7 +31,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/providers/auth-provider'
 import { getHostById } from '@/services/host.service'
 import { getTimeslotsByHostId } from '@/services/timeslot.service'
-import { createAppointment } from '@/services/appointment.service'
+import { createAppointment, getAppointmentById } from '@/services/appointment.service'
 
 interface Host {
   id: string
@@ -133,12 +133,34 @@ export default function BookingPage() {
     setError(null)
 
     try {
-      // Authenticated user booking
-      await createAppointment({
+      // Create appointment
+      const appointment = await createAppointment({
         hostId,
         timeSlotId,
         reason: reason.trim()
       })
+
+      // VALIDATION: Check if timeSlot data is populated
+      if (!appointment.timeSlot || !appointment.timeSlot.startTime) {
+        // Try fetching again with a small delay to ensure data is persisted
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        try {
+          const updatedAppointment = await getAppointmentById(appointment.id)
+          
+          if (!updatedAppointment.timeSlot || !updatedAppointment.timeSlot.startTime) {
+            throw new Error(
+              'Appointment was created but time slot information is missing. ' +
+              'Please contact support or try booking again.'
+            )
+          }
+        } catch (err) {
+          throw new Error(
+            'Appointment was created but we cannot retrieve the time slot information. ' +
+            'Please check My Appointments page.'
+          )
+        }
+      }
 
       setSuccess(true)
       // Redirect to My Appointments after short delay

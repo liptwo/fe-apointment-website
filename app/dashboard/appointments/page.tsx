@@ -7,7 +7,7 @@ import {
 import 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { format } from 'date-fns'
+import { format, parseISO, isValid } from 'date-fns'
 import {
   Heart,
   LogOut,
@@ -223,12 +223,26 @@ export default function HostAppointmentsPage() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'MMM dd, yyyy')
+  const formatDate = (dateString: string | undefined) => {
+    try {
+      if (!dateString) return '---'
+      const date = parseISO(dateString)
+      if (!isValid(date)) return '---'
+      return format(date, 'MMM dd, yyyy')
+    } catch (error) {
+      return '---'
+    }
   }
 
-  const formatTime = (dateString: string) => {
-    return format(new Date(dateString), 'hh:mm a')
+  const formatTime = (dateString: string | undefined) => {
+    try {
+      if (!dateString) return '--:--'
+      const date = parseISO(dateString)
+      if (!isValid(date)) return '--:--'
+      return format(date, 'hh:mm a')
+    } catch (error) {
+      return '--:--'
+    }
   }
 
   const pendingCount = appointments.filter((a) => a.status === 'PENDING').length
