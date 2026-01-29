@@ -40,7 +40,7 @@ export function HostCard({ host }: HostCardProps) {
       <CardFooter className="pt-0">
         <Button asChild className="w-full group">
           <Link href={`/hosts/${host.id}`}>
-            View Details
+            Xem Chi Tiết
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </Button>

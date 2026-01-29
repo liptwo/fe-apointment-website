@@ -53,10 +53,10 @@ const STATUS_STYLES: Record<
     label: string
   }
 > = {
-  PENDING: { variant: 'secondary', label: 'Pending' },
-  CONFIRMED: { variant: 'default', label: 'Confirmed' },
-  CANCELLED: { variant: 'destructive', label: 'Cancelled' },
-  COMPLETED: { variant: 'outline', label: 'Completed' }
+  PENDING: { variant: 'secondary', label: 'Đang chờ' },
+  CONFIRMED: { variant: 'default', label: 'Đã xác nhận' },
+  CANCELLED: { variant: 'destructive', label: 'Đã hủy' },
+  COMPLETED: { variant: 'outline', label: 'Đã hoàn thành' }
 }
 
 function DashboardHeader() {
@@ -87,7 +87,7 @@ function DashboardHeader() {
                 className='text-muted-foreground hover:text-foreground'
               >
                 <Clock className='h-4 w-4 mr-2' />
-                Availability
+                Khả năng sắp xếp
               </Link>
             </Button>
             <Button variant='ghost' size='sm' asChild>
@@ -96,7 +96,7 @@ function DashboardHeader() {
                 className='text-foreground bg-secondary'
               >
                 <Calendar className='h-4 w-4 mr-2' />
-                Appointments
+                Lịch hẹn
               </Link>
             </Button>
             <Button variant='ghost' size='sm' asChild>
@@ -104,7 +104,7 @@ function DashboardHeader() {
                 href='/dashboard/profile'
                 className='text-muted-foreground hover:text-foreground'
               >
-                Edit Profile
+                Chỉnh sửa hồ sơ
               </Link>
             </Button>
           </nav>
@@ -117,7 +117,7 @@ function DashboardHeader() {
           className='text-muted-foreground hover:text-foreground'
         >
           <LogOut className='h-4 w-4 mr-2' />
-          Sign out
+          Đăng xuất
         </Button>
       </div>
     </header>
@@ -255,10 +255,10 @@ export default function HostAppointmentsPage() {
         {/* Page Header */}
         <div className='mb-8'>
           <h1 className='text-3xl font-bold text-foreground'>
-            Appointment Management
+            Quản Lý Lịch Hẹn
           </h1>
           <p className='mt-2 text-muted-foreground'>
-            Review and manage patient appointment requests.
+            Xem và quản lý tất cả các cuộc hẹn của bạn tại đây.
           </p>
         </div>
 
@@ -271,7 +271,7 @@ export default function HostAppointmentsPage() {
               </div>
               <div>
                 <span className='text-sm text-muted-foreground'>
-                  Pending Requests:{' '}
+                  Cuộc hẹn đang chờ xác nhận:{' '}
                 </span>
                 <span className='font-semibold text-foreground'>
                   {pendingCount}
@@ -316,18 +316,18 @@ export default function HostAppointmentsPage() {
             <CardHeader>
               <CardTitle className='text-lg font-medium flex items-center gap-2'>
                 <Calendar className='h-5 w-5 text-primary' />
-                All Appointments
+                Lịch Hẹn Của Bạn
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Patient</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className='text-right'>Actions</TableHead>
+                    <TableHead>Bệnh nhân</TableHead>
+                    <TableHead>Ngày</TableHead>
+                    <TableHead>Giờ</TableHead>
+                    <TableHead>Tình trạng</TableHead>
+                    <TableHead className='text-right'>Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -388,7 +388,7 @@ export default function HostAppointmentsPage() {
                                     className='bg-primary hover:bg-primary/90'
                                   >
                                     <Check className='h-4 w-4 mr-1' />
-                                    Confirm
+                                    Xác nhận
                                   </Button>
                                   <Button
                                     variant='ghost'
@@ -399,7 +399,7 @@ export default function HostAppointmentsPage() {
                                     className='text-destructive hover:text-destructive hover:bg-destructive/10'
                                   >
                                     <X className='h-4 w-4 mr-1' />
-                                    Cancel
+                                    Hủy
                                   </Button>
                                 </>
                               )}
@@ -423,10 +423,10 @@ export default function HostAppointmentsPage() {
                 <Calendar className='h-8 w-8 text-muted-foreground' />
               </div>
               <h3 className='mt-4 text-lg font-medium text-foreground'>
-                No appointments yet
+                Không có cuộc hẹn nào
               </h3>
               <p className='mt-2 text-sm text-muted-foreground max-w-sm'>
-                You don&apos;t have any appointment requests.
+                Bạn chưa có bất kỳ yêu cầu hẹn lịch nào.
               </p>
             </CardContent>
           </Card>
@@ -441,14 +441,14 @@ export default function HostAppointmentsPage() {
             <AlertDialogHeader>
               <AlertDialogTitle className='flex items-center gap-2'>
                 <Check className='h-5 w-5 text-primary' />
-                Confirm Appointment
+                Xác nhận cuộc hẹn
               </AlertDialogTitle>
               <AlertDialogDescription>
-                Confirm the appointment with{' '}
+                Xác nhận cuộc hẹn với{' '}
                 <span className='font-medium'>
                   {dialogState.appointment?.guest?.name || 'a guest'}
                 </span>{' '}
-                scheduled for{' '}
+                đã lên lịch cho ngày{' '}
                 <span className='font-medium'>
                   {dialogState.appointment &&
                     format(
@@ -456,13 +456,13 @@ export default function HostAppointmentsPage() {
                       "MMMM dd, yyyy 'at' hh:mm a"
                     )}
                 </span>
-                ? The patient will be notified.
+                ? Bệnh nhân sẽ được thông báo.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
               <AlertDialogAction onClick={handleConfirm}>
-                Confirm Appointment
+                Xác nhận cuộc hẹn
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

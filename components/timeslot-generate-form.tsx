@@ -34,9 +34,9 @@ interface AvailabilityRule {
 }
 
 const SLOT_DURATIONS = [
-  { value: '15', label: '15 minutes' },
-  { value: '30', label: '30 minutes' },
-  { value: '60', label: '60 minutes' }
+  { value: '15', label: '15 phút' },
+  { value: '30', label: '30 phút' },
+  { value: '60', label: '60 phút' }
 ]
 
 interface TimeslotGenerateFormProps {
@@ -66,7 +66,7 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
         const data = await getAvailabilityRules(user.id)
         setRules(data)
       } catch (error) {
-        setError('Failed to fetch availability rules.')
+        setError('Không thể tải các quy tắc khả dụng.')
         setRules([]) // Clear any existing rules
       } finally {
         setIsFetchingRules(false)
@@ -95,22 +95,22 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
     setGeneratedCount(null)
 
     if (!selectedRuleId) {
-      setError('Please select an availability rule')
+      setError('Vui lòng chọn quy tắc khả dụng')
       return
     }
 
     if (!slotDuration) {
-      setError('Please select a slot duration')
+      setError('Vui lòng chọn khoảng thời gian')
       return
     }
 
     if (!fromDate || !toDate) {
-      setError('Please select date range')
+      setError('Vui lòng chọn khoảng ngày')
       return
     }
 
     if (new Date(fromDate) > new Date(toDate)) {
-      setError('End date must be after start date')
+      setError('Ngày kết thúc phải sau ngày bắt đầu')
       return
     }
 
@@ -157,10 +157,10 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
           </div>
           <div>
             <CardTitle className='text-xl font-semibold'>
-              Generate Time Slots
+              Tạo Khoảng Thời Gian
             </CardTitle>
             <CardDescription>
-              Create bookable time slots from your availability rules
+              Tạo các khoảng thời gian có thể đặt lịch từ các quy tắc khả dụng của bạn
             </CardDescription>
           </div>
         </div>
@@ -179,15 +179,15 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
               <CheckCircle2 className='h-4 w-4 flex-shrink-0' />
               <span>
                 {generatedCount !== null
-                  ? `Successfully generated ${generatedCount} time slots!`
-                  : 'Time slots generated successfully!'}
+                  ? `Tạo thành công ${generatedCount} khoảng thời gian!`
+                  : 'Các khoảng thời gian đã được tạo thành công!'}
               </span>
             </div>
           )}
 
           {/* Select Rule */}
           <div className='space-y-2'>
-            <Label htmlFor='rule'>Availability Rule</Label>
+            <Label htmlFor='rule'>Quy Tắc Khả Dụng</Label>
             <Select
               value={selectedRuleId}
               onValueChange={setSelectedRuleId}
@@ -196,7 +196,7 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
               <SelectTrigger id='rule'>
                 <SelectValue
                   placeholder={
-                    isFetchingRules ? 'Loading rules...' : 'Select a rule'
+                    isFetchingRules ? 'Đang tải quy tắc...' : 'Chọn một quy tắc'
                   }
                 />
               </SelectTrigger>
@@ -213,7 +213,7 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
             {rules.filter((r) => r.is_active).length === 0 &&
               !isFetchingRules && (
                 <p className='text-xs text-muted-foreground'>
-                  No active rules found. Create an availability rule first.
+                  Không tìm thấy quy tắc hoạt động. Tạo quy tắc khả dụng trước tiên.
                 </p>
               )}
           </div>
@@ -222,16 +222,16 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
           {selectedRule && (
             <div className='rounded-lg bg-muted/50 p-3 space-y-1'>
               <p className='text-sm font-medium text-foreground'>
-                Rule Details
+                Chi Tiết Quy Tắc
               </p>
               <p className='text-sm text-muted-foreground'>
-                Days:{' '}
+                Ngày:{' '}
                 <span className='font-medium text-foreground'>
                   {selectedRule.days_of_week.split(',').join(', ')}
                 </span>
               </p>
               <p className='text-sm text-muted-foreground'>
-                Hours:{' '}
+                Giờ:{' '}
                 <span className='font-medium text-foreground'>
                   {selectedRule.start_hour.toString().padStart(2, '0')}:00 -{' '}
                   {selectedRule.end_hour.toString().padStart(2, '0')}:00
@@ -242,14 +242,14 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
 
           {/* Slot Duration */}
           <div className='space-y-2'>
-            <Label htmlFor='duration'>Slot Duration</Label>
+            <Label htmlFor='duration'>Khoảng Thời Gian</Label>
             <Select
               value={slotDuration}
               onValueChange={setSlotDuration}
               disabled={isLoading || success}
             >
               <SelectTrigger id='duration'>
-                <SelectValue placeholder='Select duration' />
+                <SelectValue placeholder='Chọn khoảng thời gian' />
               </SelectTrigger>
               <SelectContent>
                 {SLOT_DURATIONS.map((duration) => (
@@ -264,7 +264,7 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
           {/* Date Range */}
           <div className='grid grid-cols-2 gap-4'>
             <div className='space-y-2'>
-              <Label htmlFor='fromDate'>From Date</Label>
+              <Label htmlFor='fromDate'>Từ Ngày</Label>
               <div className='relative'>
                 <Calendar className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none' />
                 <Input
@@ -279,7 +279,7 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='toDate'>To Date</Label>
+              <Label htmlFor='toDate'>Đến Ngày</Label>
               <div className='relative'>
                 <Calendar className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none' />
                 <Input
@@ -302,19 +302,19 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
             new Date(fromDate) <= new Date(toDate) && (
               <div className='rounded-lg border border-border bg-card p-4'>
                 <p className='text-sm text-muted-foreground'>
-                  Estimated slots per day:{' '}
+                  Khoảng thời gian ước tính mỗi ngày:{' '}
                   <span className='font-semibold text-foreground'>
                     {Math.floor(
                       ((selectedRule.end_hour - selectedRule.start_hour) *
                         60) /
                         Number(slotDuration)
                     )}{' '}
-                    slots
+                    khoảng
                   </span>
                 </p>
                 <p className='text-xs text-muted-foreground mt-1'>
-                  Based on {Number(slotDuration)}-minute intervals from{' '}
-                  {selectedRule.start_hour.toString().padStart(2, '0')}:00 to{' '}
+                  Dựa trên các khoảng {Number(slotDuration)} phút từ{' '}
+                  {selectedRule.start_hour.toString().padStart(2, '0')}:00 đến{' '}
                   {selectedRule.end_hour.toString().padStart(2, '0')}:00
                 </p>
               </div>
@@ -329,17 +329,17 @@ export function TimeslotGenerateForm({ onSuccess }: TimeslotGenerateFormProps) {
             {isLoading ? (
               <>
                 <Loader2 className='h-4 w-4 animate-spin' />
-                Generating...
+                Đang tạo...
               </>
             ) : success ? (
               <>
                 <CheckCircle2 className='h-4 w-4' />
-                Generated
+                Đã tạo
               </>
             ) : (
               <>
                 <Zap className='h-4 w-4' />
-                Generate Time Slots
+                Tạo Khoảng Thời Gian
               </>
             )}
           </Button>

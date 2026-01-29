@@ -20,34 +20,34 @@ export default function LoginPage() {
         <div className="space-y-8">
           <div>
             <h1 className="text-4xl font-semibold leading-tight text-balance">
-              Your health journey starts here
+              Hành trình chăm sóc sức khỏe của bạn bắt đầu từ đây
             </h1>
             <p className="mt-4 text-lg text-primary-foreground/80 max-w-md">
-              Connect with healthcare professionals and manage your appointments with ease.
+              Kết nối với các chuyên gia chăm sóc sức khỏe và quản lý lịch hẹn của bạn một cách dễ dàng.
             </p>
           </div>
 
           <div className="grid gap-4">
             <FeatureItem
               icon={<Clock className="h-5 w-5" />}
-              title="Easy Scheduling"
-              description="Book appointments in seconds"
+              title="Đặt lịch dễ dàng"
+              description="Đặt lịch hẹn chỉ trong vài giây"
             />
             <FeatureItem
               icon={<Users className="h-5 w-5" />}
-              title="Expert Doctors"
-              description="Access to verified specialists"
+              title="Các bác sĩ chuyên gia"
+              description="Tiếp cận các chuyên gia được xác minh"
             />
             <FeatureItem
               icon={<Shield className="h-5 w-5" />}
-              title="Secure & Private"
-              description="Your data is always protected"
+              title="An toàn & Bảo mật"
+              description="Dữ liệu của bạn luôn được bảo vệ"
             />
           </div>
         </div>
 
         <div className="text-sm text-primary-foreground/60">
-          &copy; 2026 MediCare. All rights reserved.
+          &copy; 2026 MediCare. Bảo lưu tất cả các quyền.
         </div>
       </div>
 
@@ -64,12 +64,12 @@ export default function LoginPage() {
         <LoginForm />
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
-          {"Don't have an account? "}
+          {"Chưa có tài khoản? "}
           <Link
             href="/register"
             className="font-medium text-primary underline underline-offset-4 hover:text-primary/90 transition-colors"
           >
-            Create one
+            Tạo một cái
           </Link>
         </p>
 
@@ -78,7 +78,7 @@ export default function LoginPage() {
             href="/"
             className="font-medium text-primary underline underline-offset-4 hover:text-primary/90 transition-colors"
           >
-            Back to Home
+            Quay về Trang chủ
           </Link>
         </p>
       </div>

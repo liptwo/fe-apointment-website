@@ -34,6 +34,17 @@ export function LoginForm() {
     try {
       const user = await login({ email, password })
 
+      // Check if HOST has complete profile information
+      if (user.role === 'HOST') {
+        const hasCompleteProfile = user.specialty && user.address
+
+        if (!hasCompleteProfile) {
+          // Redirect to profile completion page
+          router.push('/dashboard/profile')
+          return
+        }
+      }
+
       // Role-based redirect
       switch (user.role) {
         case 'GUEST':
@@ -63,10 +74,10 @@ export function LoginForm() {
     <Card className='w-full max-w-md border-0 shadow-lg'>
       <CardHeader className='space-y-1 pb-4'>
         <CardTitle className='text-2xl font-semibold tracking-tight text-center'>
-          Welcome back
+          Chào mừng quay lại
         </CardTitle>
         <CardDescription className='text-center'>
-          Sign in to access your medical appointments
+          Đăng nhập để quản lý các lịch hẹn của bạn
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -96,13 +107,13 @@ export function LoginForm() {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='password'>Password</Label>
+            <Label htmlFor='password'>Mật khẩu</Label>
             <div className='relative'>
               <Lock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
               <Input
                 id='password'
                 type='password'
-                placeholder='Enter your password'
+                placeholder='Nhập mật khẩu'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className='pl-10'
@@ -121,10 +132,10 @@ export function LoginForm() {
             {isLoading ? (
               <>
                 <Loader2 className='h-4 w-4 animate-spin' />
-                Signing in...
+                Đang đăng nhập...
               </>
             ) : (
-              'Sign in'
+              'Đăng nhập'
             )}
           </Button>
 
@@ -133,7 +144,7 @@ export function LoginForm() {
               href='#'
               className='underline underline-offset-4 hover:text-primary transition-colors'
             >
-              Forgot your password?
+              Quên mật khẩu?
             </a>
           </div>
         </form>

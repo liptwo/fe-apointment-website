@@ -4,9 +4,9 @@ import { Heart, UserPlus, Stethoscope, CalendarCheck } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Register - MediCare',
+  title: 'Đăng ký - MediCare',
   description:
-    'Create your MediCare account to start managing medical appointments'
+    'Tạo tài khoản MediCare để bắt đầu quản lý lịch hẹn y tế'
 }
 
 export default function RegisterPage() {
@@ -26,35 +26,35 @@ export default function RegisterPage() {
         <div className='space-y-8'>
           <div>
             <h1 className='text-4xl font-semibold leading-tight text-balance'>
-              Join our healthcare community
+              Tham gia cộng đồng chăm sóc sức khỏe của chúng tôi
             </h1>
             <p className='mt-4 text-lg text-primary-foreground/80 max-w-md'>
-              Whether you&apos;re a patient seeking care or a provider offering
-              services, MediCare connects you.
+              Dù bạn là bệnh nhân tìm kiếm chăm sóc hay nhà cung cấp dịch vụ,
+              MediCare kết nối bạn.
             </p>
           </div>
 
           <div className='grid gap-4'>
             <FeatureItem
               icon={<UserPlus className='h-5 w-5' />}
-              title='For Patients'
-              description='Find and book appointments easily'
+              title='Cho Bệnh nhân'
+              description='Tìm và đặt lịch hẹn dễ dàng'
             />
             <FeatureItem
               icon={<Stethoscope className='h-5 w-5' />}
-              title='For Providers'
-              description='Manage your practice efficiently'
+              title='Cho Nhà cung cấp'
+              description='Quản lý phòng khám của bạn một cách hiệu quả'
             />
             <FeatureItem
               icon={<CalendarCheck className='h-5 w-5' />}
-              title='Smart Scheduling'
-              description='Automated reminders and updates'
+              title='Lập lịch thông minh'
+              description='Nhắc nhở tự động và cập nhật'
             />
           </div>
         </div>
 
         <div className='text-sm text-primary-foreground/60'>
-          &copy; 2026 MediCare. All rights reserved.
+          &copy; 2026 MediCare. Bảo lưu tất cả các quyền.
         </div>
       </div>
 
@@ -73,12 +73,12 @@ export default function RegisterPage() {
         <RegisterForm />
 
         <p className='mt-8 text-center text-sm text-muted-foreground'>
-          Already have an account?{' '}
+          Đã có tài khoản?{' '}
           <Link
             href='/login'
             className='font-medium text-primary underline underline-offset-4 hover:text-primary/90 transition-colors'
           >
-            Sign in
+            Đăng nhập
           </Link>
         </p>
       </div>

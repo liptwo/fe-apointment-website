@@ -9,6 +9,11 @@ export const createAppointment = async (
   return response.data
 }
 
+export const getAppointmentById = async (id: string): Promise<Appointment> => {
+  const response = await api.get<Appointment>(`/appointments/${id}`)
+  return response.data
+}
+
 export const getMyBookings = async (): Promise<Appointment[]> => {
   const response = await api.get<Appointment[]>('/appointments/my')
   return response.data

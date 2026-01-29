@@ -54,13 +54,13 @@ function AdminDashboardHeader() {
             <Button variant="ghost" size="sm" asChild>
               <Link href="/admin/dashboard" className="text-foreground bg-secondary">
                 <BarChart className="h-4 w-4 mr-2" />
-                Dashboard
+                Bảng Điều Khiển
               </Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/admin/users" className="text-muted-foreground hover:text-foreground">
                 <Users className="h-4 w-4 mr-2" />
-                User Management
+                Quản Lý Người Dùng
               </Link>
             </Button>
           </nav>
@@ -72,7 +72,7 @@ function AdminDashboardHeader() {
           className="text-muted-foreground hover:text-foreground"
         >
           <LogOut className="h-4 w-4 mr-2" />
-          Sign out
+          Đăng Xuất
         </Button>
       </div>
     </header>
@@ -119,10 +119,10 @@ export default function AdminDashboardPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Shield className="h-8 w-8 text-primary" />
-            Admin Dashboard
+            Bảng Điều Khiển Quản Trị
           </h1>
           <p className="mt-2 text-muted-foreground">
-            An overview of appointment statistics.
+            Tổng quan về thống kê lịch hẹn.
           </p>
         </div>
 
@@ -150,7 +150,7 @@ export default function AdminDashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Total Appointments
+                    Tổng Lịch Hẹn
                   </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -161,7 +161,7 @@ export default function AdminDashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Confirmed
+                    Đã Xác Nhận
                   </CardTitle>
                   <Check className="h-4 w-4 text-green-500" />
                 </CardHeader>
@@ -172,7 +172,7 @@ export default function AdminDashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Canceled
+                    Đã Hủy
                   </CardTitle>
                   <X className="h-4 w-4 text-destructive" />
                 </CardHeader>

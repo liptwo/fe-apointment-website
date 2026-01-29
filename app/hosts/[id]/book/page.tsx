@@ -31,7 +31,10 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/providers/auth-provider'
 import { getHostById } from '@/services/host.service'
 import { getTimeslotsByHostId } from '@/services/timeslot.service'
-import { createAppointment, getAppointmentById } from '@/services/appointment.service'
+import {
+  createAppointment,
+  getAppointmentById
+} from '@/services/appointment.service'
 
 interface Host {
   id: string
@@ -143,21 +146,24 @@ export default function BookingPage() {
       // VALIDATION: Check if timeSlot data is populated
       if (!appointment.timeSlot || !appointment.timeSlot.startTime) {
         // Try fetching again with a small delay to ensure data is persisted
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
+        await new Promise((resolve) => setTimeout(resolve, 500))
+
         try {
           const updatedAppointment = await getAppointmentById(appointment.id)
-          
-          if (!updatedAppointment.timeSlot || !updatedAppointment.timeSlot.startTime) {
+
+          if (
+            !updatedAppointment.timeSlot ||
+            !updatedAppointment.timeSlot.startTime
+          ) {
             throw new Error(
               'Appointment was created but time slot information is missing. ' +
-              'Please contact support or try booking again.'
+                'Please contact support or try booking again.'
             )
           }
         } catch (err) {
           throw new Error(
             'Appointment was created but we cannot retrieve the time slot information. ' +
-            'Please check My Appointments page.'
+              'Please check My Appointments page.'
           )
         }
       }
@@ -193,7 +199,7 @@ export default function BookingPage() {
     return (
       <div className='min-h-screen bg-background flex items-center justify-center'>
         <AppHeader />
-        <p className='text-muted-foreground'>Redirecting to login...</p>
+        <p className='text-muted-foreground'>Đang chuyển hướng đến login...</p>
       </div>
     )
   }
@@ -211,13 +217,13 @@ export default function BookingPage() {
                     <CheckCircle className='h-8 w-8 text-accent' />
                   </div>
                   <h2 className='mt-6 text-xl font-semibold text-foreground'>
-                    Appointment Booked!
+                    Cuộc hẹn của bạn đã được đặt thành công!
                   </h2>
                   <p className='mt-2 text-sm text-muted-foreground'>
-                    Your appointment has been successfully scheduled.
+                    Cuộc hẹn của bạn đã được đặt thành công.
                   </p>
                   <p className='mt-1 text-sm text-muted-foreground'>
-                    You will be redirected shortly.
+                    Bạn sẽ được chuyển hướng trong giây lát.
                   </p>
                 </div>
               </CardContent>
@@ -242,16 +248,17 @@ export default function BookingPage() {
         >
           <Link href={`/hosts/${hostId}`}>
             <ArrowLeft className='mr-2 h-4 w-4' />
-            Back to Provider
+            Trở về trang thông tin bác sĩ
           </Link>
         </Button>
 
         <div className='mx-auto max-w-2xl'>
           <Card>
             <CardHeader>
-              <CardTitle>Confirm Your Appointment</CardTitle>
+              <CardTitle>Xác Nhận Lịch Hẹn</CardTitle>
               <CardDescription>
-                Review the details below and provide your information.
+                Vui lòng xem lại thông tin bên dưới và cung cấp lý do cho cuộc
+                hẹn của bạn.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -306,7 +313,7 @@ export default function BookingPage() {
 
                 {/* Reason Textarea */}
                 <div className='space-y-2'>
-                  <Label htmlFor='reason'>Reason for Visit</Label>
+                  <Label htmlFor='reason'>Lý do đến khám</Label>
                   <Textarea
                     id='reason'
                     placeholder='e.g., Annual check-up, specific symptom...'
@@ -326,7 +333,7 @@ export default function BookingPage() {
                     className='flex-1 bg-transparent'
                     asChild
                   >
-                    <Link href={`/hosts/${hostId}`}>Cancel</Link>
+                    <Link href={`/hosts/${hostId}`}>Hủy</Link>
                   </Button>
                   <Button
                     type='submit'
@@ -336,7 +343,7 @@ export default function BookingPage() {
                     {submitting ? (
                       <>
                         <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                        Booking...
+                        Đang đặt lịch...
                       </>
                     ) : (
                       'Confirm Booking'

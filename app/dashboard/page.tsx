@@ -59,7 +59,7 @@ function DashboardHeader() {
             <Button variant='ghost' size='sm' asChild>
               <Link href='/dashboard' className='text-foreground bg-secondary'>
                 <Clock className='h-4 w-4 mr-2' />
-                Availability
+                Khả Dụng
               </Link>
             </Button>
             <Button variant='ghost' size='sm' asChild>
@@ -68,7 +68,7 @@ function DashboardHeader() {
                 className='text-muted-foreground hover:text-foreground'
               >
                 <Calendar className='h-4 w-4 mr-2' />
-                Appointments
+                Lịch Hẹn
               </Link>
             </Button>
             <Button variant='ghost' size='sm' asChild>
@@ -76,7 +76,7 @@ function DashboardHeader() {
                 href='/dashboard/profile'
                 className='text-muted-foreground hover:text-foreground'
               >
-                Edit Profile
+                Sửa Hồ Sơ
               </Link>
             </Button>
           </nav>
@@ -88,7 +88,7 @@ function DashboardHeader() {
           className='text-muted-foreground hover:text-foreground'
         >
           <LogOut className='h-4 w-4 mr-2' />
-          Sign out
+          Đăng Xuất
         </Button>
       </div>
     </header>
@@ -115,7 +115,7 @@ export default function DashboardPage() {
       const data = await getAvailabilityRules(user.id)
       setRules(data)
     } catch (err) {
-      setError('Failed to fetch availability rules.')
+      setError('Không thể tải quy tắc khả dụng.')
     } finally {
       setLoading(false)
     }
@@ -147,7 +147,7 @@ export default function DashboardPage() {
       await deleteAvailabilityRule(dialogState.ruleId)
       fetchRules()
     } catch (err) {
-      setError('Failed to delete rule.')
+      setError('Không thể xóa quy tắc.')
     } finally {
       setDialogState({ isOpen: false, ruleId: null })
     }
@@ -164,10 +164,10 @@ export default function DashboardPage() {
       <main className='container mx-auto px-4 py-8'>
         <div className='mb-8'>
           <h1 className='text-3xl font-bold text-foreground'>
-            Provider Dashboard
+            Bảng Điều Khiển
           </h1>
           <p className='mt-2 text-muted-foreground'>
-            Manage your availability and appointments
+            Quản lý khả dụng và lịch hẹn của bạn
           </p>
         </div>
 
@@ -185,7 +185,7 @@ export default function DashboardPage() {
               />
             ) : (
               <Button onClick={handleAddNew} className='w-full'>
-                <PlusCircle className='mr-2 h-4 w-4' /> Add New Rule
+                <PlusCircle className='mr-2 h-4 w-4' /> Thêm Quy Tắc Mới
               </Button>
             )}
             <TimeslotGenerateForm />
@@ -195,13 +195,13 @@ export default function DashboardPage() {
           <div className='lg:col-span-1'>
             <Card>
               <CardHeader>
-                <CardTitle>Your Availability Rules</CardTitle>
+                <CardTitle>Quy Tắc Khả Dụng Của Bạn</CardTitle>
               </CardHeader>
               <CardContent>
-                {loading && <p>Loading rules...</p>}
+                {loading && <p>Đang tải quy tắc...</p>}
                 {error && <p className='text-destructive'>{error}</p>}
                 {!loading && rules.length === 0 && (
-                  <p>No availability rules set up yet.</p>
+                  <p>Không có quy tắc khả dụng nào được thiết lập.</p>
                 )}
                 <div className='space-y-4'>
                   {rules.map((rule) => (
@@ -221,7 +221,7 @@ export default function DashboardPage() {
                         <Badge
                           variant={rule.is_active ? 'default' : 'secondary'}
                         >
-                          {rule.is_active ? 'Active' : 'Inactive'}
+                          {rule.is_active ? 'Hoạt Động' : 'Không Hoạt Động'}
                         </Badge>
                         <Button
                           variant='ghost'
@@ -256,15 +256,15 @@ export default function DashboardPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Bạn có chắc chắn không?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              availability rule.
+              Hành động này không thể được được hoàn tác. Điều này sẽ xóa vĩng
+              vành quy tắc khả dụng.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Xóa</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

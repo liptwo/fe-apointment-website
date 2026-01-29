@@ -18,10 +18,10 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-3">
               <Button variant="ghost" asChild>
-                <Link href="/login">Sign In</Link>
+                <Link href="/login">Đăng Nhập</Link>
               </Button>
               <Button asChild>
-                <Link href="/register">Get Started</Link>
+                <Link href="/register">Bắt Đầu</Link>
               </Button>
             </div>
           </div>
@@ -33,20 +33,20 @@ export default function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground text-balance">
-              Your health journey starts here
+              Hành trình chăm sóc sức khỏe của bạn bắt đầu từ đây
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Connect with healthcare professionals and manage your medical appointments with ease. Book, track, and stay on top of your health.
+              Kết nối với các chuyên gia chăm sóc sức khỏe và quản lý lịch hẹn y tế của bạn một cách dễ dàng. Đặt lịch, theo dõi và nắm bắt thông tin về sức khỏe của bạn.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button size="lg" asChild className="w-full sm:w-auto">
                 <Link href="/register">
-                  Create Account
+                  Tạo tài khoản
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="w-full sm:w-auto bg-transparent">
-                <Link href="/hosts">Browse Doctors</Link>
+                <Link href="/hosts">Duyệt danh sách bác sĩ</Link>
               </Button>
             </div>
           </div>
@@ -58,27 +58,27 @@ export default function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
-              Why choose MediCare?
+              Tại sao chọn MediCare?
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Everything you need for better healthcare management
+              Mọi thứ bạn cần để quản lý sức khỏe tốt hơn
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <FeatureCard
               icon={<Calendar className="h-6 w-6" />}
-              title="Easy Scheduling"
-              description="Book appointments in seconds with our intuitive scheduling system."
+              title="Đặt lịch dễ dàng"
+              description="Đặt lịch hẹn chỉ trong vài giây với hệ thống lập lịch trực quan của chúng tôi."
             />
             <FeatureCard
               icon={<Users className="h-6 w-6" />}
-              title="Expert Doctors"
-              description="Access to a network of verified healthcare specialists."
+              title="Bác sĩ chuyên gia"
+              description="Tiếp cận mạng lưới các chuyên gia chăm sóc sức khỏe được xác minh."
             />
             <FeatureCard
               icon={<Shield className="h-6 w-6" />}
-              title="Secure & Private"
-              description="Your medical data is always protected with enterprise-grade security."
+              title="An toàn & Bảo mật"
+              description="Dữ liệu y tế của bạn luôn được bảo vệ bằng bảo mật cấp doanh nghiệp."
             />
           </div>
         </div>
@@ -90,17 +90,17 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Heart className="h-4 w-4" />
-              <span className="text-sm">&copy; 2026 MediCare. All rights reserved.</span>
+              <span className="text-sm">&copy; 2026 MediCare. Bảo lưu tất cả các quyền.</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link href="/hosts" className="hover:text-foreground transition-colors">
-                Find Doctors
+                Tìm bác sĩ
               </Link>
               <Link href="/login" className="hover:text-foreground transition-colors">
-                Sign In
+                Đăng nhập
               </Link>
               <Link href="/register" className="hover:text-foreground transition-colors">
-                Register
+                Đăng ký
               </Link>
             </div>
           </div>

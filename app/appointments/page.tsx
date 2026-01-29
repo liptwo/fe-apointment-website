@@ -49,10 +49,10 @@ const STATUS_STYLES: Record<
     label: string
   }
 > = {
-  PENDING: { variant: 'secondary', label: 'Pending' },
-  CONFIRMED: { variant: 'default', label: 'Confirmed' },
-  CANCELLED: { variant: 'destructive', label: 'Cancelled' },
-  COMPLETED: { variant: 'outline', label: 'Completed' }
+  PENDING: { variant: 'secondary', label: 'Đang chờ' },
+  CONFIRMED: { variant: 'default', label: 'Đã xác nhận' },
+  CANCELLED: { variant: 'destructive', label: 'Đã hủy' },
+  COMPLETED: { variant: 'outline', label: 'Đã hoàn thành' }
 }
 
 export default function MyAppointmentsPage() {
@@ -76,7 +76,7 @@ export default function MyAppointmentsPage() {
       const data = await getMyBookings()
       setAppointments(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : 'Đã xảy ra lỗi')
     } finally {
       setLoading(false)
     }
@@ -99,7 +99,7 @@ export default function MyAppointmentsPage() {
       // Refresh the list to show the updated status
       fetchAppointments()
     } catch (err) {
-      setError('Failed to cancel appointment. Please try again.')
+      setError('Lỗi hủy lịch hẹn. Vui lòng thử lại.')
     } finally {
       setCancellingId(null)
       setSelectedAppointment(null)
@@ -134,10 +134,10 @@ export default function MyAppointmentsPage() {
       <main className='container mx-auto px-4 py-8'>
         <div className='mb-8'>
           <h1 className='text-3xl font-semibold text-foreground'>
-            My Appointments
+            Lịch Hẹn Của Tôi
           </h1>
           <p className='mt-2 text-muted-foreground'>
-            View and manage your upcoming and past appointments.
+            Xem và quản lý các lịch hẹn sắp tới và quá khứ.
           </p>
         </div>
 
@@ -165,18 +165,18 @@ export default function MyAppointmentsPage() {
             <CardHeader>
               <CardTitle className='text-lg font-medium flex items-center gap-2'>
                 <CalendarDays className='h-5 w-5 text-primary' />
-                All Appointments
+                Tất Cả Lịch Hẹn
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Provider</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className='text-right'>Action</TableHead>
+                    <TableHead>Nhà Cung Cấp</TableHead>
+                    <TableHead>Ngày</TableHead>
+                    <TableHead>Thời Gian</TableHead>
+                    <TableHead>Trạng Thái</TableHead>
+                    <TableHead className='text-right'>Hành Động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -235,7 +235,7 @@ export default function MyAppointmentsPage() {
                               ) : (
                                 <>
                                   <X className='h-4 w-4 mr-1' />
-                                  Cancel
+                                  Hủy
                                 </>
                               )}
                             </Button>
@@ -255,14 +255,14 @@ export default function MyAppointmentsPage() {
                 <CalendarDays className='h-8 w-8 text-muted-foreground' />
               </div>
               <h3 className='mt-4 text-lg font-medium text-foreground'>
-                No appointments yet
+                Chưa có lịch hẹn nào
               </h3>
               <p className='mt-2 text-sm text-muted-foreground max-w-sm'>
-                You haven&apos;t booked any appointments. Find a healthcare
-                provider to schedule your first visit.
+                Bạn chưa đặt lịch hẹn nào. Tìm một nhà cung cấp chăm sóc sức
+                khóe để lập lịch lần đầu tiên của bạn.
               </p>
               <Button asChild className='mt-6'>
-                <Link href='/hosts'>Find a Provider</Link>
+                <Link href='/hosts'>Tìm Nhà Cung Cấp</Link>
               </Button>
             </CardContent>
           </Card>
@@ -273,10 +273,10 @@ export default function MyAppointmentsPage() {
             <AlertDialogHeader>
               <AlertDialogTitle className='flex items-center gap-2'>
                 <AlertCircle className='h-5 w-5 text-destructive' />
-                Cancel Appointment
+                Hủy Lịch Hẹn
               </AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to cancel this appointment scheduled for{' '}
+                Bạn có chắc chắn muốn hủy lịch hẹn được lập lịch cho{' '}
                 <span className='font-medium'>
                   {selectedAppointment &&
                     format(
@@ -284,26 +284,26 @@ export default function MyAppointmentsPage() {
                       "MMMM dd, yyyy 'at' hh:mm a"
                     )}
                 </span>
-                ? This action cannot be undone.
+                ? Hành động này không thể được hoàn tác.
               </AlertDialogDescription>
               <div className='pt-2 space-y-2'>
-                <Label htmlFor='cancelReason'>Reason for cancellation</Label>
+                <Label htmlFor='cancelReason'>Lý do hủy</Label>
                 <Textarea
                   id='cancelReason'
-                  placeholder='Please provide a brief reason for cancelling...'
+                  placeholder='Vui lòng cung cấp lý do ngắn gọn...'
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
                 />
               </div>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
+              <AlertDialogCancel>Giữ Lịch Hẹn</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleCancelConfirm}
                 disabled={!cancelReason.trim()}
                 className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
               >
-                Yes, Cancel
+                Đóng ý, Hủy
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

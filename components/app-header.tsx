@@ -16,7 +16,7 @@ export function AppHeader() {
 
   const handleLogout = () => {
     logout()
-    router.push('/login')
+    router.replace('/login')
   }
 
   return (
@@ -40,7 +40,7 @@ export function AppHeader() {
                   className='text-muted-foreground hover:text-foreground'
                 >
                   <Users className='h-4 w-4 mr-2' />
-                  Providers
+                  Nhà cung cấp
                 </Link>
               </Button>
               <Button variant='ghost' size='sm' asChild>
@@ -49,7 +49,7 @@ export function AppHeader() {
                   className='text-muted-foreground hover:text-foreground'
                 >
                   <CalendarDays className='h-4 w-4 mr-2' />
-                  My Appointments
+                  Lịch hẹn của tôi
                 </Link>
               </Button>
             </nav>
@@ -61,7 +61,7 @@ export function AppHeader() {
               size='sm'
               onClick={() => setShowNotifications(true)}
               className='relative'
-              title='Notifications'
+              title='Thông báo'
             >
               <NotificationBadge />
             </Button>
@@ -73,7 +73,7 @@ export function AppHeader() {
               className='text-muted-foreground hover:text-foreground'
             >
               <LogOut className='h-4 w-4 mr-2' />
-              Sign out
+              Đăng xuất
             </Button>
           </div>
         </div>

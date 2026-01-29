@@ -26,13 +26,13 @@ import {
 } from '@/services/availability.service'
 
 const DAYS_OF_WEEK = [
-  { value: 'MON', label: 'Mon' },
-  { value: 'TUE', label: 'Tue' },
-  { value: 'WED', label: 'Wed' },
-  { value: 'THU', label: 'Thu' },
-  { value: 'FRI', label: 'Fri' },
-  { value: 'SAT', label: 'Sat' },
-  { value: 'SUN', label: 'Sun' }
+  { value: 'MON', label: 'Th 2' },
+  { value: 'TUE', label: 'Th 3' },
+  { value: 'WED', label: 'Th 4' },
+  { value: 'THU', label: 'Th 5' },
+  { value: 'FRI', label: 'Th 6' },
+  { value: 'SAT', label: 'Th 7' },
+  { value: 'SUN', label: 'CN' }
 ]
 
 const HOURS = Array.from({ length: 24 }, (_, i) => ({
@@ -91,17 +91,17 @@ export function AvailabilityRuleForm({
     setSuccess(false)
 
     if (selectedDays.length === 0) {
-      setError('Please select at least one day')
+      setError('Vui lòng chọn ít nhất một ngày')
       return
     }
 
     if (!startHour || !endHour) {
-      setError('Please select start and end hours')
+      setError('Vui lòng chọn giờ bắt đầu và giờ kết thúc')
       return
     }
 
     if (Number(startHour) >= Number(endHour)) {
-      setError('End hour must be after start hour')
+      setError('Giờ kết thúc phải sau giờ bắt đầu')
       return
     }
 
@@ -125,7 +125,7 @@ export function AvailabilityRuleForm({
         onSuccess()
       }, 1000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : 'Đã xảy ra lỗi')
     } finally {
       setIsLoading(false)
     }
@@ -140,12 +140,12 @@ export function AvailabilityRuleForm({
           </div>
           <div>
             <CardTitle className='text-xl font-semibold'>
-              {isEditMode ? 'Edit Rule' : 'Create New Rule'}
+              {isEditMode ? 'Sửa Quy Tắc' : 'Tạo Quy Tắc Mới'}
             </CardTitle>
             <CardDescription>
               {isEditMode
-                ? 'Update your availability schedule.'
-                : 'Set your weekly availability schedule.'}
+                ? 'Cập nhật lịch khả dụng của bạn.'
+                : 'Đặt lịch khả dụng cho các ngày trong tuần.'}
             </CardDescription>
           </div>
         </div>
@@ -162,12 +162,12 @@ export function AvailabilityRuleForm({
           {success && (
             <div className='flex items-center gap-2 rounded-md bg-accent/10 p-3 text-sm text-accent'>
               <CheckCircle2 className='h-4 w-4 flex-shrink-0' />
-              <span>Rule saved successfully!</span>
+              <span>Quy tắc đã được lưu thành công!</span>
             </div>
           )}
 
           <div className='space-y-3'>
-            <Label>Days of Week</Label>
+            <Label>Ngày Trong Tuần</Label>
             <div className='flex flex-wrap gap-2'>
               {DAYS_OF_WEEK.map((day) => (
                 <button
@@ -190,14 +190,14 @@ export function AvailabilityRuleForm({
 
           <div className='grid grid-cols-2 gap-4'>
             <div className='space-y-2'>
-              <Label htmlFor='startHour'>Start Hour</Label>
+              <Label htmlFor='startHour'>Giờ Bắt Đầu</Label>
               <Select
                 value={startHour}
                 onValueChange={setStartHour}
                 disabled={isLoading || success}
               >
                 <SelectTrigger id='startHour'>
-                  <SelectValue placeholder='Select start' />
+                  <SelectValue placeholder='Chọn không' />
                 </SelectTrigger>
                 <SelectContent>
                   {HOURS.map((hour) => (
@@ -209,7 +209,7 @@ export function AvailabilityRuleForm({
               </Select>
             </div>
             <div className='space-y-2'>
-              <Label htmlFor='endHour'>End Hour</Label>
+              <Label htmlFor='endHour'>Giờ Kết Thúc</Label>
               <Select
                 value={endHour}
                 onValueChange={setEndHour}
@@ -232,10 +232,10 @@ export function AvailabilityRuleForm({
           <div className='flex items-center justify-between rounded-lg border border-border p-4'>
             <div className='space-y-0.5'>
               <Label htmlFor='isActive' className='text-base font-medium'>
-                Active
+                Hoạt Động
               </Label>
               <p className='text-sm text-muted-foreground'>
-                Enable this availability rule
+                Bật quy tắc khả dụng này
               </p>
             </div>
             <Switch
@@ -253,7 +253,7 @@ export function AvailabilityRuleForm({
               onClick={onCancel}
               disabled={isLoading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               type='submit'
@@ -262,16 +262,16 @@ export function AvailabilityRuleForm({
             >
               {isLoading ? (
                 <>
-                  <Loader2 className='h-4 w-4 animate-spin' /> Saving...
+                  <Loader2 className='h-4 w-4 animate-spin' /> Đang lưu...
                 </>
               ) : success ? (
                 <>
-                  <CheckCircle2 className='h-4 w-4' /> Saved
+                  <CheckCircle2 className='h-4 w-4' /> Đã lưu
                 </>
               ) : isEditMode ? (
-                'Update Rule'
+                'Cập Nhật Quy Tắc'
               ) : (
-                'Create Rule'
+                'Tạo Quy Tắc'
               )}
             </Button>
           </div>

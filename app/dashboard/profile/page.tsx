@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Heart, ArrowLeft, Loader2 } from 'lucide-react'
+import { Heart, ArrowLeft, Loader2, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { AppHeader } from '@/components/app-header'
 import { Button } from '@/components/ui/button'
@@ -36,6 +36,10 @@ export default function ProfilePage() {
   const [description, setDescription] = useState('')
   const [address, setAddress] = useState('')
 
+  // Check if host has incomplete profile
+  const isHostWithIncompleteProfile =
+    user?.role === 'HOST' && (!user?.specialty || !user?.address)
+
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login')
@@ -58,12 +62,12 @@ export default function ProfilePage() {
     setSuccess(false)
 
     if (!user) {
-      setError('User information not available')
+      setError('Thông tin người dùng không khả dụng')
       return
     }
 
     if (!name.trim() || !email.trim()) {
-      setError('Name and email are required')
+      setError('Tên và email là bắt buộc')
       return
     }
 
@@ -74,7 +78,7 @@ export default function ProfilePage() {
 
       if (user.role === 'HOST') {
         if (!specialty.trim() || !address.trim()) {
-          setError('Specialty and address are required for hosts')
+          setError('Chuyên khoa và địa chỉ là bắt buộc đối với các nhà cung cấp')
           setLoading(false)
           return
         }
@@ -133,25 +137,41 @@ export default function ProfilePage() {
       <AppHeader />
 
       <main className='container mx-auto px-4 py-8'>
-        <Button
-          variant='ghost'
-          size='sm'
-          asChild
-          className='mb-6 -ml-2 text-muted-foreground hover:text-foreground'
-        >
-          <Link href='/dashboard'>
-            <ArrowLeft className='mr-2 h-4 w-4' />
-            Back to Dashboard
-          </Link>
-        </Button>
+        {isHostWithIncompleteProfile && (
+          <div className='mb-6 rounded-lg bg-amber-50 border border-amber-200 p-4 flex items-start gap-3'>
+            <AlertTriangle className='h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5' />
+            <div>
+              <h3 className='font-semibold text-amber-900'>
+                Hoàn thành Hồ sơ của bạn
+              </h3>
+              <p className='text-sm text-amber-800 mt-1'>
+                Vui lòng hoàn thành thông tin chuyên nghiệp của bạn (chuyên khoa và địa chỉ phòng khám) để bắt đầu nhận cuộc hẹn.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {!isHostWithIncompleteProfile && (
+          <Button
+            variant='ghost'
+            size='sm'
+            asChild
+            className='mb-6 -ml-2 text-muted-foreground hover:text-foreground'
+          >
+            <Link href='/dashboard'>
+              <ArrowLeft className='mr-2 h-4 w-4' />
+              Quay lại Dashboard
+            </Link>
+          </Button>
+        )}
 
         <div className='mx-auto max-w-2xl'>
           <Card>
             <CardHeader>
-              <CardTitle>Edit Profile</CardTitle>
+              <CardTitle>Chỉnh sửa Hồ sơ</CardTitle>
               <CardDescription>
-                Update your {user.role === 'HOST' ? 'professional' : 'personal'}{' '}
-                information
+                Cập nhật thông tin {user.role === 'HOST' ? 'chuyên nghiệp' : 'cá nhân'}{' '}
+                của bạn
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -159,13 +179,13 @@ export default function ProfilePage() {
                 {/* Common Fields */}
                 <div className='grid sm:grid-cols-2 gap-4'>
                   <div className='space-y-2'>
-                    <Label htmlFor='name'>Full Name *</Label>
+                    <Label htmlFor='name'>Họ và tên *</Label>
                     <Input
                       id='name'
                       type='text'
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder='Your full name'
+                      placeholder='Họ và tên của bạn'
                       required
                     />
                   </div>
@@ -176,14 +196,14 @@ export default function ProfilePage() {
                       type='email'
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder='your@email.com'
+                      placeholder='email@example.com'
                       required
                     />
                   </div>
                 </div>
 
                 <div className='space-y-2'>
-                  <Label htmlFor='phone'>Phone Number</Label>
+                  <Label htmlFor='phone'>Số điện thoại</Label>
                   <Input
                     id='phone'
                     type='tel'
@@ -197,36 +217,36 @@ export default function ProfilePage() {
                 {user.role === 'HOST' && (
                   <>
                     <div className='space-y-2'>
-                      <Label htmlFor='specialty'>Specialty *</Label>
+                      <Label htmlFor='specialty'>Chuyên khoa *</Label>
                       <Input
                         id='specialty'
                         type='text'
                         value={specialty}
                         onChange={(e) => setSpecialty(e.target.value)}
-                        placeholder='e.g., General Practice, Cardiology'
+                        placeholder='VD: Chuyên khoa Nội, Tim mạch'
                         required
                       />
                     </div>
 
                     <div className='space-y-2'>
-                      <Label htmlFor='address'>Clinic Address *</Label>
+                      <Label htmlFor='address'>Địa chỉ phòng khám *</Label>
                       <Input
                         id='address'
                         type='text'
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
-                        placeholder='Your clinic address'
+                        placeholder='Địa chỉ phòng khám của bạn'
                         required
                       />
                     </div>
 
                     <div className='space-y-2'>
-                      <Label htmlFor='description'>Professional Bio</Label>
+                      <Label htmlFor='description'>Tiểu sử chuyên nghiệp</Label>
                       <Textarea
                         id='description'
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder='Tell patients about your experience and qualifications...'
+                        placeholder='Kể cho bệnh nhân về kinh nghiệm và bằng cấp của bạn...'
                         className='min-h-24 resize-none'
                       />
                     </div>
@@ -242,28 +262,36 @@ export default function ProfilePage() {
 
                 {success && (
                   <div className='rounded-lg bg-green-500/10 p-4 text-sm text-green-600'>
-                    Profile updated successfully! Redirecting...
+                    Hồ sơ đã được cập nhật thành công! Đang chuyển hướng...
                   </div>
                 )}
 
                 {/* Actions */}
                 <div className='flex gap-3 pt-4'>
+                  {!isHostWithIncompleteProfile && (
+                    <Button
+                      type='button'
+                      variant='outline'
+                      className='flex-1 bg-transparent'
+                      asChild
+                    >
+                      <Link href='/dashboard'>Hủy</Link>
+                    </Button>
+                  )}
                   <Button
-                    type='button'
-                    variant='outline'
-                    className='flex-1 bg-transparent'
-                    asChild
+                    type='submit'
+                    className={
+                      isHostWithIncompleteProfile ? 'w-full' : 'flex-1'
+                    }
+                    disabled={loading}
                   >
-                    <Link href='/dashboard'>Cancel</Link>
-                  </Button>
-                  <Button type='submit' className='flex-1' disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                        Saving...
+                        Đang lưu...
                       </>
                     ) : (
-                      'Save Changes'
+                      'Lưu thay đổi'
                     )}
                   </Button>
                 </div>

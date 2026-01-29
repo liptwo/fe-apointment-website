@@ -50,7 +50,7 @@ export function RegisterForm() {
     setSuccess(false)
 
     if (!role) {
-      setError('Please select a role')
+      setError('Vui lòng chọn loại tài khoản')
       return
     }
 
@@ -79,10 +79,10 @@ export function RegisterForm() {
     <Card className='w-full max-w-md border-0 shadow-lg'>
       <CardHeader className='space-y-1 pb-4'>
         <CardTitle className='text-2xl font-semibold tracking-tight text-center'>
-          Create an account
+          Tạo tài khoản
         </CardTitle>
         <CardDescription className='text-center'>
-          Join MediCare to manage your medical appointments
+          Tham gia MediCare để quản lý lịch hẹn của bạn
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -97,18 +97,18 @@ export function RegisterForm() {
           {success && (
             <div className='flex items-center gap-2 rounded-md bg-green-500/15 p-3 text-sm text-green-500'>
               <CheckCircle2 className='h-4 w-4 shrink-0' />
-              <span>Registration successful! Redirecting to login...</span>
+              <span>Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...</span>
             </div>
           )}
 
           <div className='space-y-2'>
-            <Label htmlFor='name'>Full Name</Label>
+            <Label htmlFor='name'>Họ và tên</Label>
             <div className='relative'>
               <User className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
               <Input
                 id='name'
                 type='text'
-                placeholder='John Doe'
+                placeholder='Nguyễn Văn A'
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className='pl-10'
@@ -136,7 +136,7 @@ export function RegisterForm() {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='phone'>Phone Number</Label>
+            <Label htmlFor='phone'>Số điện thoại</Label>
             <div className='relative'>
               <Phone className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
               <Input
@@ -153,13 +153,13 @@ export function RegisterForm() {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='password'>Password</Label>
+            <Label htmlFor='password'>Mật khẩu</Label>
             <div className='relative'>
               <Lock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
               <Input
                 id='password'
                 type='password'
-                placeholder='Create a password'
+                placeholder='Tạo mật khẩu'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className='pl-10'
@@ -169,29 +169,29 @@ export function RegisterForm() {
               />
             </div>
             <p className='text-xs text-muted-foreground'>
-              Must be at least 6 characters
+              Phải có ít nhất 6 ký tự
             </p>
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='role'>I want to</Label>
+            <Label htmlFor='role'>Tôi là</Label>
             <Select
               value={role}
               onValueChange={(value: UserRole) => setRole(value)}
               disabled={isLoading || success}
             >
               <SelectTrigger id='role' className='w-full'>
-                <SelectValue placeholder='Select your role' />
+                <SelectValue placeholder='Chọn loại tài khoản' />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='GUEST'>
                   <div className='flex flex-col items-start'>
-                    <span>Book appointments (Guest)</span>
+                    <span>Đặt lịch hẹn (Khách)</span>
                   </div>
                 </SelectItem>
                 <SelectItem value='HOST'>
                   <div className='flex flex-col items-start'>
-                    <span>Offer services (Host/Doctor)</span>
+                    <span>Cung cấp dịch vụ (Nhà cung cấp/Bác sĩ)</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -207,32 +207,32 @@ export function RegisterForm() {
             {isLoading ? (
               <>
                 <Loader2 className='h-4 w-4 animate-spin' />
-                Creating account...
+                Đang tạo tài khoản...
               </>
             ) : success ? (
               <>
                 <CheckCircle2 className='h-4 w-4' />
-                Account created
+                Tài khoản đã tạo
               </>
             ) : (
-              'Create account'
+              'Tạo tài khoản'
             )}
           </Button>
 
           <p className='text-center text-xs text-muted-foreground'>
-            By creating an account, you agree to our{' '}
+            Bằng cách tạo tài khoản, bạn đồng ý với{' '}
             <a
               href='#'
               className='underline underline-offset-4 hover:text-primary transition-colors'
             >
-              Terms of Service
+              Điều khoản dịch vụ
             </a>{' '}
-            and{' '}
+            của chúng tôi{' '}
             <a
               href='#'
               className='underline underline-offset-4 hover:text-primary transition-colors'
             >
-              Privacy Policy
+              Chính sách bảo mật
             </a>
           </p>
         </form>

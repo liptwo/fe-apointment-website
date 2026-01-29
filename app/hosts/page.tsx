@@ -19,16 +19,16 @@ import { getHosts } from '@/services/host.service'
 import { useAuth } from '@/providers/auth-provider'
 
 const SPECIALTIES = [
-  'All Specialties',
-  'General Practice',
-  'Cardiology',
-  'Dermatology',
-  'Neurology',
-  'Orthopedics',
-  'Pediatrics',
-  'Psychiatry',
-  'Radiology',
-  'Dentist'
+  'Tất cả chuyên khoa',
+  'Chuyên khoa Nội',
+  'Tim mạch',
+  'Da liễu',
+  'Thần kinh',
+  'Chỉnh hình',
+  'Nhi khoa',
+  'Tâm thần',
+  'Chẩn đoán hình ảnh',
+  'Nha sĩ'
 ]
 
 export default function HostsPage() {
@@ -38,7 +38,7 @@ export default function HostsPage() {
   const [pageLoading, setPageLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchName, setSearchName] = useState('')
-  const [specialty, setSpecialty] = useState('All Specialties')
+  const [specialty, setSpecialty] = useState('Tất cả chuyên khoa')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
   // Check authentication
@@ -63,11 +63,11 @@ export default function HostsPage() {
     try {
       // Handle 'All Specialties' case
       const specialtyToFetch =
-        specialty === 'All Specialties' ? undefined : specialty
+        specialty === 'Tất cả chuyên khoa' ? undefined : specialty
       const response = await getHosts(specialtyToFetch)
       setHosts(response.data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : 'Đã xảy ra lỗi')
       setHosts([]) // Clear hosts on error
     } finally {
       setPageLoading(false)
@@ -116,7 +116,7 @@ export default function HostsPage() {
     return (
       <div className='min-h-screen bg-background flex items-center justify-center'>
         <AppHeader />
-        <p className='text-muted-foreground'>Redirecting to login...</p>
+        <p className='text-muted-foreground'>Đang chuyển hướng đến login... </p>
       </div>
     )
   }
@@ -129,11 +129,11 @@ export default function HostsPage() {
         {/* Page Header */}
         <div className='mb-8'>
           <h1 className='text-3xl font-semibold text-foreground'>
-            Find a Healthcare Provider
+            Tìm nhà cung cấp dịch vụ y tế
           </h1>
           <p className='mt-2 text-muted-foreground'>
-            Browse our network of qualified medical professionals and book your
-            appointment.
+            Duyệt qua mạng lưới các chuyên gia y tế có trình độ và đặt lịch hẹn
+            của bạn.
           </p>
         </div>
 
@@ -143,7 +143,7 @@ export default function HostsPage() {
             <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
             <Input
               type='text'
-              placeholder='Search by name...'
+              placeholder='Tìm kiếm theo tên...'
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
               className='pl-10'
@@ -153,7 +153,7 @@ export default function HostsPage() {
             <Filter className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none' />
             <Select value={specialty} onValueChange={setSpecialty}>
               <SelectTrigger className='pl-10'>
-                <SelectValue placeholder='Filter by specialty' />
+                <SelectValue placeholder='Lọc theo chuyên khoa' />
               </SelectTrigger>
               <SelectContent>
                 {SPECIALTIES.map((s) => (
@@ -169,8 +169,8 @@ export default function HostsPage() {
         {/* Results Count */}
         {!pageLoading && (
           <p className='mb-4 text-sm text-muted-foreground'>
-            {filteredHosts.length} provider
-            {filteredHosts.length !== 1 ? 's' : ''} found
+            Tìm thấy {filteredHosts.length} nhà cung cấp
+            {filteredHosts.length !== 1 ? '' : ''}
           </p>
         )}
 
@@ -220,11 +220,11 @@ export default function HostsPage() {
               <Search className='h-8 w-8 text-muted-foreground' />
             </div>
             <h3 className='mt-4 text-lg font-medium text-foreground'>
-              No providers found
+              Không tìm thấy nhà cung cấp
             </h3>
             <p className='mt-2 text-sm text-muted-foreground max-w-sm'>
-              Try adjusting your search or filter criteria to find healthcare
-              providers.
+              Hãy thử điều chỉnh tiêu chí tìm kiếm hoặc lọc để tìm nhà cung cấp
+              dịch vụ y tế.
             </p>
           </div>
         )}

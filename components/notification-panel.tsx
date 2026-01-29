@@ -81,9 +81,9 @@ export const NotificationPanel = ({
         {/* Header */}
         <div className='border-b p-4 flex items-center justify-between'>
           <div>
-            <h2 className='text-lg font-semibold'>Notifications</h2>
+            <h2 className='text-lg font-semibold'>Thông Báo</h2>
             {unreadCount > 0 && (
-              <p className='text-sm text-gray-500'>{unreadCount} unread</p>
+              <p className='text-sm text-gray-500'>{unreadCount} chưa đọc</p>
             )}
           </div>
           {unreadCount > 0 && (
@@ -96,7 +96,7 @@ export const NotificationPanel = ({
               {isLoading ? (
                 <Loader className='w-4 h-4 animate-spin' />
               ) : (
-                'Mark all read'
+                'Đánh dấu tất cả đã đọc'
               )}
             </Button>
           )}
@@ -106,7 +106,7 @@ export const NotificationPanel = ({
         <div className='flex-1 overflow-y-auto p-4 space-y-2'>
           {notifications.length === 0 ? (
             <div className='flex items-center justify-center h-full'>
-              <p className='text-gray-500'>No notifications</p>
+              <p className='text-gray-500'>Không có thông báo</p>
             </div>
           ) : (
             notifications.map((notification) => (
@@ -123,7 +123,7 @@ export const NotificationPanel = ({
         {/* Close button */}
         <div className='border-t p-4'>
           <Button variant='outline' className='w-full' onClick={onClose}>
-            Close
+            Đóng
           </Button>
         </div>
       </div>
