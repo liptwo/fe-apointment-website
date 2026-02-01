@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { User } from '@/types'
+import { User } from '@/src/types'
 
 // Define protected routes with roles
 const ADMIN_ROUTES = ['/admin']
@@ -77,7 +77,11 @@ export function middleware(request: NextRequest) {
 
   // Redirect authenticated users away from guest routes
   if (isAuthenticated && (pathname === '/login' || pathname === '/register')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    if (user?.role === 'HOST') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    } else {
+      return NextResponse.redirect(new URL('/hosts', request.url))
+    }
   }
 
   return NextResponse.next()
