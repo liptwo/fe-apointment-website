@@ -174,3 +174,23 @@ export interface Patient {
   dob: string
   gender: string
 }
+
+export type AppointmentStatus =
+  | 'Scheduled'
+  | 'Late'
+  | 'Checked-in'
+  | 'In-consultation'
+  | 'Completed'
+  | 'Cancelled'
+
+export interface Appointment {
+  id: string
+  time: string
+  patientName: string
+  patientId: string
+  phone: string
+  doctorName: string
+  doctorAvatar: string
+  // status: AppointmentStatus
+  initials: string
+}
