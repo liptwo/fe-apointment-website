@@ -13,6 +13,7 @@ export const ROUTES = {
   // Protected routes - auth required
   PROTECTED: {
     DASHBOARD: '/dashboard',
+    DOCTOR_DASHBOARD: '/dashboard/doctor',
     APPOINTMENTS: '/appointments',
     APPOINTMENTS_DETAIL: '/appointments/:id',
     HOSTS: '/hosts',

@@ -38,9 +38,14 @@ export interface User {
   created_at?: string // from GET /users
   createdAt?: string // from register
   phone?: string
-  specialty?: string
+  specialty?: string // legacy
   description?: string
   address?: string
+  // New doctor fields
+  title?: string
+  specialtyId?: string
+  price?: number
+  avatar?: string
 }
 
 export interface UpdateGuestProfilePayload {
@@ -53,9 +58,14 @@ export interface UpdateHostProfilePayload {
   name?: string
   email?: string
   phone?: string
-  specialty?: string
+  specialty?: string // legacy
   description?: string
   address?: string
+  // New doctor fields
+  title?: string
+  specialtyId?: string
+  price?: number
+  avatar?: string
 }
 
 export interface PaginationMeta {
@@ -234,3 +244,25 @@ export type AppointmentStatus =
 //   // status: AppointmentStatus
 //   initials: string
 // }
+
+export interface DoctorDashboard {
+  total: number
+  confirmed: number
+  pending: number
+  canceled: number
+}
+
+export interface DoctorTodayAppointment {
+  id: string
+  patient_name: string
+  phone: string
+  status: string
+  payment_status: string
+  created_at: string
+  timeslots: {
+    id: string
+    start_time: string
+    end_time: string
+  }
+}
+

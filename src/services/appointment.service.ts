@@ -1,6 +1,11 @@
 // services/appointment.service.ts
 import api from '../lib/axios'
-import { Appointment, BookingPayload } from '@/src/types' // Assuming these types will be added to types/index.ts
+import {
+  Appointment,
+  BookingPayload,
+  DoctorDashboard,
+  DoctorTodayAppointment
+} from '@/src/types' // Assuming these types will be added to types/index.ts
 
 export const createAppointment = async (
   payload: BookingPayload
@@ -31,5 +36,21 @@ export const cancelAppointment = async (
   const response = await api.patch<Appointment>(`/appointments/${id}/cancel`, {
     cancelReason
   })
+  return response.data
+}
+
+export const getDoctorDashboard = async (): Promise<DoctorDashboard> => {
+  const response = await api.get<DoctorDashboard>(
+    '/appointments/doctor/dashboard'
+  )
+  return response.data
+}
+
+export const getDoctorTodayAppointments = async (): Promise<
+  DoctorTodayAppointment[]
+> => {
+  const response = await api.get<DoctorTodayAppointment[]>(
+    '/appointments/doctor/today'
+  )
   return response.data
 }

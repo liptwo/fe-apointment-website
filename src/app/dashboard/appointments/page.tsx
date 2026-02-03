@@ -16,7 +16,9 @@ import {
   Loader2,
   Check,
   X,
-  User
+  User,
+  CalendarDays,
+  Mail
 } from 'lucide-react'
 import { Button } from '@/src/components/ui/button'
 import { Badge } from '@/src/components/ui/badge'
@@ -43,7 +45,8 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle
+  CardTitle,
+  CardFooter
 } from '@/src/components/ui/card'
 import React, { useState, useEffect } from 'react'
 import { Textarea } from '@/src/components/ui/textarea'
@@ -251,116 +254,89 @@ export default function HostAppointmentsPage() {
           </Card>
         )}
 
-        {/* Appointments Table */}
+        {/* Appointments List */}
         {!loading && appointments.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className='text-lg font-medium flex items-center gap-2'>
-                <Calendar className='h-5 w-5 text-primary' />
-                Lịch Hẹn Của Bạn
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Bệnh nhân</TableHead>
-                    <TableHead>Ngày</TableHead>
-                    <TableHead>Giờ</TableHead>
-                    <TableHead>Lý do</TableHead>
-                    <TableHead>Tình trạng</TableHead>
-                    <TableHead className='text-right'>Hành động</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {appointments.map((appointment) => {
-                    const statusConfig = STATUS_STYLES[appointment.status] || {
-                      variant: 'outline' as const,
-                      label: appointment.status || 'Unknown'
-                    }
-                    const isPending = appointment.status === 'PENDING'
-                    const isLoading = actionLoading === appointment.id
+          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            {appointments.map((appointment) => {
+              const statusConfig = STATUS_STYLES[appointment.status] || {
+                variant: 'outline' as const,
+                label: appointment.status || 'Unknown'
+              }
+              const isPending = appointment.status === 'PENDING'
+              const isLoading = actionLoading === appointment.id
 
-                    return (
-                      <TableRow key={appointment.id}>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
-                            <div className='flex h-8 w-8 items-center justify-center rounded-full bg-muted'>
-                              <User className='h-4 w-4 text-muted-foreground' />
-                            </div>
-                            <span className='font-medium'>
-                              {appointment.guest?.name || 'N/A'}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
-                            <Calendar className='h-4 w-4 text-muted-foreground' />
-                            <span>
-                              {formatDate(appointment?.timeSlot?.startTime)}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
-                            <Clock className='h-4 w-4 text-muted-foreground' />
-                            <span>
-                              {formatTime(appointment?.timeSlot?.startTime)}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
-                            <Clock className='h-4 w-4 text-muted-foreground' />
-                            <span>{formatTime(appointment.reason)}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={statusConfig.variant}>
-                            {statusConfig.label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className='text-right'>
-                          {isPending && (
-                            <div className='flex items-center justify-end gap-2'>
-                              {isLoading ? (
-                                <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
-                              ) : (
-                                <>
-                                  <Button
-                                    variant='default'
-                                    size='sm'
-                                    onClick={() =>
-                                      openDialog('confirm', appointment)
-                                    }
-                                    className='bg-primary hover:bg-primary/90'
-                                  >
-                                    <Check className='h-4 w-4 mr-1' />
-                                    Xác nhận
-                                  </Button>
-                                  <Button
-                                    variant='ghost'
-                                    size='sm'
-                                    onClick={() =>
-                                      openDialog('cancel', appointment)
-                                    }
-                                    className='text-destructive hover:text-destructive hover:bg-destructive/10'
-                                  >
-                                    <X className='h-4 w-4 mr-1' />
-                                    Hủy
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+              return (
+                <Card key={appointment.id} className='flex flex-col'>
+                  <CardHeader>
+                    <div className='flex items-start justify-between'>
+                      <div>
+                        <CardTitle className='text-lg font-semibold text-primary'>
+                          {appointment?.patient_name || 'N/A'}
+                        </CardTitle>
+                        <p className='text-sm text-muted-foreground'>
+                          SĐT: {appointment?.phone || 'Không có'}
+                        </p>
+                      </div>
+                      <Badge variant={statusConfig.variant}>
+                        {statusConfig.label}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className='flex flex-col space-y-3'>
+                    {appointment.guest?.email && (
+                      <div className='flex items-center gap-2 text-sm'>
+                        <Mail className='h-4 w-4 text-muted-foreground' />
+                        <span>{appointment.guest.email}</span>
+                      </div>
+                    )}
+                    <div className='flex items-center gap-2 text-sm'>
+                      <CalendarDays className='h-4 w-4 text-muted-foreground' />
+                      <span>
+                        {formatDate(appointment.timeslots.start_time)}
+                      </span>
+                    </div>
+                    <div className='flex items-center gap-2 text-sm'>
+                      <Clock className='h-4 w-4 text-muted-foreground' />
+                      <span>
+                        {formatTime(appointment.timeslots.start_time)} -{' '}
+                        {formatTime(appointment.timeslots.end_time)}
+                      </span>
+                    </div>
+                  </CardContent>
+                  <CardFooter className='mt-auto'>
+                    {isPending && (
+                      <div className='flex items-center justify-end gap-2 w-full'>
+                        {isLoading ? (
+                          <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
+                        ) : (
+                          <>
+                            <Button
+                              variant='default'
+                              size='sm'
+                              onClick={() => openDialog('confirm', appointment)}
+                              className='bg-primary hover:bg-primary/90 flex-1'
+                            >
+                              <Check className='h-4 w-4 mr-1' />
+                              Xác nhận
+                            </Button>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              onClick={() => openDialog('cancel', appointment)}
+                              className='text-destructive hover:text-destructive hover:bg-destructive/10 flex-1'
+                            >
+                              <X className='h-4 w-4 mr-1' />
+                              Hủy
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </CardFooter>
+                </Card>
+              )
+            })}
+          </div>
         )}
 
         {/* Empty State */}
@@ -400,7 +376,7 @@ export default function HostAppointmentsPage() {
                 <span className='font-medium'>
                   {dialogState.appointment &&
                     format(
-                      new Date(dialogState.appointment.timeSlot.startTime),
+                      new Date(dialogState.appointment.timeslots.start_time),
                       "MMMM dd, yyyy 'at' hh:mm a"
                     )}
                 </span>

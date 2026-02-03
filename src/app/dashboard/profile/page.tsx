@@ -2,13 +2,20 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Heart, ArrowLeft, Loader2, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
-import { AppHeader } from '@/src/components/app-header'
+import { DashboardHeader } from '@/src/components/dashboard-header'
 import { Button } from '@/src/components/ui/button'
 import { Input } from '@/src/components/ui/input'
 import { Label } from '@/src/components/ui/label'
 import { Textarea } from '@/src/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/src/components/ui/select'
 import {
   Card,
   CardContent,
@@ -21,44 +28,84 @@ import {
   updateGuestProfile,
   updateHostProfile
 } from '@/src/services/user.service'
-import { DashboardHeader } from '@/src/components/dashboard-header'
+import { getAllSpecialty } from '@/src/services/specialty.service'
+import { Specialty } from '@/src/types'
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, isLoading, updateUserInfo } = useAuth()
-  const [loading, setLoading] = useState(false)
+  const { user, isLoading: isAuthLoading, updateUserInfo } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [specialties, setSpecialties] = useState<Specialty[]>([])
 
-  // Guest fields
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    // Host fields
+    title: '',
+    specialtyId: '',
+    price: '',
+    address: '',
+    description: '',
+    avatar: ''
+  })
 
-  // Host-only fields
-  const [specialty, setSpecialty] = useState('')
-  const [description, setDescription] = useState('')
-  const [address, setAddress] = useState('')
-
-  // Check if host has incomplete profile
-  const isHostWithIncompleteProfile =
-    user?.role === 'HOST' && (!user?.specialty || !user?.address)
+  // This logic now checks for the new required field `specialtyId`
+  const isHostWithIncompleteProfile = user?.role === 'HOST' && !user.address
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isAuthLoading && !user) {
       router.push('/login')
       return
     }
-
+    // if (isHostWithIncompleteProfile) {
+    //   router.push('/dashboard')
+    //   router.refresh()
+    //   return
+    // }
     if (user) {
-      setName(user.name || '')
-      setEmail(user.email || '')
-      setPhone(user.phone || '')
-      setSpecialty(user.specialty || '')
-      setDescription(user.description || '')
-      setAddress(user.address || '')
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        title: user.title || '',
+        specialtyId: user.specialty_id || '',
+        price: user.price?.toString() || '',
+        address: user.address || '',
+        description: user.description || '',
+        avatar: user.avatar || ''
+      })
     }
-  }, [user, isLoading, router])
+
+    if (user?.role === 'HOST') {
+      const fetchSpecialties = async () => {
+        try {
+          const data = await getAllSpecialty()
+          setSpecialties(data)
+        } catch (err) {
+          console.error('Failed to fetch specialties:', err)
+          setError(
+            'Không thể tải danh sách chuyên khoa. Vui lòng thử tải lại trang.'
+          )
+        }
+      }
+      fetchSpecialties()
+    }
+  }, [user, isAuthLoading, router])
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target
+    setFormData((prev) => ({ ...prev, [id]: value }))
+  }
+
+  const handleSpecialtyChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, specialtyId: value }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -70,58 +117,75 @@ export default function ProfilePage() {
       return
     }
 
-    if (!name.trim() || !email.trim()) {
+    if (!formData.name.trim() || !formData.email.trim()) {
       setError('Tên và email là bắt buộc')
       return
     }
 
-    setLoading(true)
+    setIsSubmitting(true)
 
     try {
       let updatedUser
 
       if (user.role === 'HOST') {
-        if (!specialty.trim() || !address.trim()) {
+        if (!formData.specialtyId || !formData.address.trim()) {
           setError(
             'Chuyên khoa và địa chỉ là bắt buộc đối với các nhà cung cấp'
           )
-          setLoading(false)
+          setIsSubmitting(false)
+          return
+        }
+
+        const priceAsNumber = formData.price
+          ? parseFloat(formData.price)
+          : undefined
+        if (formData.price && (isNaN(priceAsNumber) || priceAsNumber < 0)) {
+          setError('Giá khám phải là một số dương.')
+          setIsSubmitting(false)
           return
         }
 
         updatedUser = await updateHostProfile(user.id, {
-          name: name.trim(),
-          email: email.trim(),
-          phone: phone.trim() || undefined,
-          specialty: specialty.trim(),
-          description: description.trim() || undefined,
-          address: address.trim()
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim() || undefined,
+          address: formData.address.trim(),
+          specialtyId: formData.specialtyId,
+          title: formData.title.trim() || undefined,
+          description: formData.description.trim() || undefined,
+          avatar: formData.avatar.trim() || undefined,
+          price: priceAsNumber
         })
       } else {
         updatedUser = await updateGuestProfile(user.id, {
-          name: name.trim(),
-          email: email.trim(),
-          phone: phone.trim() || undefined
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim() || undefined
         })
       }
 
-      // Update auth context with new user info
       if (updateUserInfo) {
         updateUserInfo(updatedUser)
       }
 
       setSuccess(true)
+      // Redirect after 2 seconds unless it's an incomplete profile being completed
+      // if (!isHostWithIncompleteProfile) {
       setTimeout(() => {
         router.push('/dashboard')
       }, 2000)
+      // } else {
+      // If profile was completed, force a reload to clear the "incomplete" state
+      router.refresh()
+      // }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update profile')
     } finally {
-      setLoading(false)
+      setIsSubmitting(false)
     }
   }
 
-  if (isLoading) {
+  if (isAuthLoading) {
     return (
       <div className='min-h-screen bg-background'>
         <DashboardHeader />
@@ -188,10 +252,8 @@ export default function ProfilePage() {
                     <Label htmlFor='name'>Họ và tên *</Label>
                     <Input
                       id='name'
-                      type='text'
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder='Họ và tên của bạn'
+                      value={formData.name}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -200,9 +262,8 @@ export default function ProfilePage() {
                     <Input
                       id='email'
                       type='email'
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder='email@example.com'
+                      value={formData.email}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -213,9 +274,8 @@ export default function ProfilePage() {
                   <Input
                     id='phone'
                     type='tel'
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder='0912345678'
+                    value={formData.phone}
+                    onChange={handleInputChange}
                   />
                 </div>
 
@@ -223,36 +283,70 @@ export default function ProfilePage() {
                 {user.role === 'HOST' && (
                   <>
                     <div className='space-y-2'>
-                      <Label htmlFor='specialty'>Chuyên khoa *</Label>
+                      <Label htmlFor='avatar'>Ảnh đại diện (URL)</Label>
                       <Input
-                        id='specialty'
-                        type='text'
-                        value={specialty}
-                        onChange={(e) => setSpecialty(e.target.value)}
-                        placeholder='VD: Chuyên khoa Nội, Tim mạch'
-                        required
+                        id='avatar'
+                        value={formData.avatar}
+                        onChange={handleInputChange}
+                        placeholder='https://example.com/your-photo.jpg'
                       />
                     </div>
 
+                    <div className='grid sm:grid-cols-2 gap-4'>
+                      <div className='space-y-2'>
+                        <Label htmlFor='title'>Chức danh</Label>
+                        <Input
+                          id='title'
+                          value={formData.title}
+                          onChange={handleInputChange}
+                          placeholder='VD: Bác sĩ, Thạc sĩ, Trưởng khoa'
+                        />
+                      </div>
+                      <div className='space-y-2'>
+                        <Label htmlFor='specialtyId'>Chuyên khoa *</Label>
+                        <Select
+                          value={formData.specialtyId}
+                          onValueChange={handleSpecialtyChange}
+                          required
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder='Chọn chuyên khoa của bạn' />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {specialties.map((spec) => (
+                              <SelectItem key={spec.id} value={spec.id}>
+                                {spec.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className='space-y-2'>
+                      <Label htmlFor='price'>Giá khám (VND)</Label>
+                      <Input
+                        id='price'
+                        type='number'
+                        value={formData.price}
+                        onChange={handleInputChange}
+                        placeholder='VD: 300000'
+                      />
+                    </div>
                     <div className='space-y-2'>
                       <Label htmlFor='address'>Địa chỉ phòng khám *</Label>
                       <Input
                         id='address'
-                        type='text'
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder='Địa chỉ phòng khám của bạn'
+                        value={formData.address}
+                        onChange={handleInputChange}
                         required
                       />
                     </div>
-
                     <div className='space-y-2'>
                       <Label htmlFor='description'>Tiểu sử chuyên nghiệp</Label>
                       <Textarea
                         id='description'
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder='Kể cho bệnh nhân về kinh nghiệm và bằng cấp của bạn...'
+                        value={formData.description}
+                        onChange={handleInputChange}
                         className='min-h-24 resize-none'
                       />
                     </div>
@@ -268,30 +362,26 @@ export default function ProfilePage() {
 
                 {success && (
                   <div className='rounded-lg bg-green-500/10 p-4 text-sm text-green-600'>
-                    Hồ sơ đã được cập nhật thành công! Đang chuyển hướng...
+                    Hồ sơ đã được cập nhật thành công!
+                    {isHostWithIncompleteProfile
+                      ? ' Trang sẽ được làm mới...'
+                      : ' Đang chuyển hướng...'}
                   </div>
                 )}
 
                 {/* Actions */}
                 <div className='flex gap-3 pt-4'>
                   {!isHostWithIncompleteProfile && (
-                    <Button
-                      type='button'
-                      variant='outline'
-                      className='flex-1 bg-transparent'
-                      asChild
-                    >
+                    <Button type='button' variant='outline' asChild>
                       <Link href='/dashboard'>Hủy</Link>
                     </Button>
                   )}
                   <Button
                     type='submit'
-                    className={
-                      isHostWithIncompleteProfile ? 'w-full' : 'flex-1'
-                    }
-                    disabled={loading}
+                    className='flex-1'
+                    disabled={isSubmitting}
                   >
-                    {loading ? (
+                    {isSubmitting ? (
                       <>
                         <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                         Đang lưu...

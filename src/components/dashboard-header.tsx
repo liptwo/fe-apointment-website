@@ -46,7 +46,16 @@ export function DashboardHeader() {
                 className='text-muted-foreground hover:text-foreground'
               >
                 <Clock className='h-4 w-4 mr-2' />
-                Quản lí lịch
+                Quản lý lịch rảnh
+              </Link>
+            </Button>
+            <Button variant='ghost' size='sm' asChild>
+              <Link
+                href='/dashboard/doctor'
+                className='text-muted-foreground hover:text-foreground'
+              >
+                <Users className='h-4 w-4 mr-2' />
+                Thống kê
               </Link>
             </Button>
             <Button variant='ghost' size='sm' asChild>

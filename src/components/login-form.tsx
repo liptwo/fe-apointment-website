@@ -35,15 +35,15 @@ export function LoginForm() {
       const user = await login({ email, password })
 
       // Check if HOST has complete profile information
-      if (user.role === 'HOST') {
-        const hasCompleteProfile = user.specialty && user.address
+      // if (user.role === 'HOST') {
+      //   const hasCompleteProfile = user.address
 
-        if (!hasCompleteProfile) {
-          // Redirect to profile completion page
-          router.push('/dashboard/profile')
-          return
-        }
-      }
+      //   if (!hasCompleteProfile) {
+      //     // Redirect to profile completion page
+      //     router.push('/dashboard/profile')
+      //     return
+      //   }
+      // }
 
       // Role-based redirect
       switch (user.role) {
