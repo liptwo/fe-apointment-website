@@ -8,16 +8,17 @@ import { Badge } from '@/src/components/ui/badge'
 import { Button } from '@/src/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/src/components/ui/avatar'
 import { Doctor } from '../types'
+import { DialogDetailDoctor } from './diaglog-detail-doctor'
 
 interface HostCardProps {
   doctor: Doctor
 }
 
-function formatPrice(price: number): string {
+export function formatPrice(price: number): string {
   return new Intl.NumberFormat('vi-VN').format(price) + 'đ'
 }
 
-function getInitials(name: string): string {
+export function getInitials(name: string): string {
   return name
     .split(' ')
     .map((n) => n[0])
@@ -27,13 +28,15 @@ function getInitials(name: string): string {
 }
 
 export function HostCard({ doctor }: HostCardProps) {
+  const [open, setOpen] = React.useState(false)
   return (
     <Card className='flex flex-col transition-shadow hover:shadow-lg border-border/60'>
-      <CardContent className='p-5'>
+      <CardContent className='px-5'>
         {/* Header with Avatar and Basic Info */}
         <div className='flex gap-4'>
           <Avatar className='h-16 w-16 border-2 border-primary/20'>
             <AvatarImage
+              className='object-cover'
               src={doctor.avatar || '/placeholder.svg'}
               alt={doctor.name}
             />
@@ -56,23 +59,23 @@ export function HostCard({ doctor }: HostCardProps) {
             <div className='mt-2 space-y-1.5 text-sm'>
               <div className='flex'>
                 <span className='text-muted-foreground w-24 shrink-0'>
-                  Chuyen tri:
+                  Chuyên trị:
                 </span>
                 <span className='text-foreground line-clamp-2'>
                   {doctor.description}
                 </span>
               </div>
-              <div className='flex'>
+              {/* <div className='flex'>
                 <span className='text-muted-foreground w-24 shrink-0'>
-                  Lich kham:
+                  Lịch khám:
                 </span>
                 <span className='text-foreground'>
-                  {doctor.schedule || 'Thu 2,3,4,5,6,7,Chu nhat'}
+                  {doctor.schedule || 'Thu 2,3,4,5,6,7'}
                 </span>
-              </div>
+              </div> */}
               <div className='flex'>
                 <span className='text-muted-foreground w-24 shrink-0'>
-                  Gia kham:
+                  Giá khám:
                 </span>
                 <span className='text-foreground font-medium'>
                   {doctor.price ? formatPrice(doctor.price) : 'Lien he'}
@@ -80,7 +83,7 @@ export function HostCard({ doctor }: HostCardProps) {
               </div>
               <div className='flex'>
                 <span className='text-muted-foreground w-24 shrink-0'>
-                  Chuyen Khoa:
+                  Chuyên khoa:
                 </span>
                 <Badge
                   variant='outline'
@@ -94,7 +97,7 @@ export function HostCard({ doctor }: HostCardProps) {
         </div>
 
         {/* Clinic Info */}
-        {doctor.clinicName && (
+        {/* {doctor.clinicName && (
           <div className='mt-4 flex items-start gap-2 text-sm text-muted-foreground'>
             <MapPin className='h-4 w-4 mt-0.5 shrink-0 text-accent' />
             <div>
@@ -108,16 +111,19 @@ export function HostCard({ doctor }: HostCardProps) {
               )}
             </div>
           </div>
-        )}
+        )} */}
+        <DialogDetailDoctor open={open} setOpen={setOpen} doctor={doctor} />
 
         {/* Actions */}
         <div className='mt-4 flex items-center justify-between gap-3'>
-          <Link
-            href={`/hosts/${doctor.id}`}
-            className='text-sm text-muted-foreground hover:text-primary transition-colors'
+          <Button
+            onClick={() => setOpen(true)}
+            variant='outline'
+            className='text-sm border-2 p-2 rounded-2xl text-muted-foreground bg-transparent hover:text-primary transition-colors hover:bg-background'
           >
-            Xem chi tiet
-          </Link>
+            Xem chi tiết
+          </Button>
+          {/* <div></div> */}
           <Button
             asChild
             className='bg-accent hover:bg-accent/90 text-accent-foreground px-6'
@@ -125,7 +131,7 @@ export function HostCard({ doctor }: HostCardProps) {
             <Link
               href={`/booking?doctorId=${doctor.id}&specialty=${doctor.specialtyId}`}
             >
-              Dat ngay
+              Đặt ngay
             </Link>
           </Button>
         </div>

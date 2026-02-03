@@ -27,25 +27,25 @@ import { useAuth } from '@/src/providers/auth-provider'
 import { DEMO_DOCTORS, HOST_SPECIALTIES } from '@/src/utils/constants'
 import { Button } from '@/src/components/ui/button'
 import { cn } from '@/src/lib/utils'
-import { Doctor } from '@/src/types'
+import { Doctor, Subject } from '@/src/types'
+import { DialogSpecialties } from '@/src/components/diaglog-specials'
+import { getAllSpecialty } from '@/src/services/specialty.service'
 const BENEFITS = [
-  'Chu dong chon bac si tin tuong, dat cang som, cang co co hoi co so thu tu thap nhat, tranh het suc',
-  'Dat kham theo gio khong can cho lay so thu tu, chi thanh toan (doi voi csyt yeu cau thanh toan online)',
-  'Duoc hoan phi kham neu huy phieu',
-  'Duoc huong chinh sach hoan tien khi dat lich tren medicare (doi voi cac csyt co ap dung)'
+  'Chủ động chọn bác sĩ tin tưởng, đặt càng sớm, càng sớm càng có cơ hội thứ tự thấp nhất',
+  'Đặt khám theo giờ không cần chờ lấy số thứ tự, chỉ thanh toán cho các dịch vụ tính phí'
 ]
-const SPECIALTIES = [
-  'Tất cả chuyên khoa',
-  'Chuyên khoa Nội',
-  'Tim mạch',
-  'Da liễu',
-  'Thần kinh',
-  'Chỉnh hình',
-  'Nhi khoa',
-  'Tâm thần',
-  'Chẩn đoán hình ảnh',
-  'Nha sĩ'
-]
+// const SPECIALTIES = [
+//   'Tất cả chuyên khoa',
+//   'Chuyên khoa Nội',
+//   'Tim mạch',
+//   'Da liễu',
+//   'Thần kinh',
+//   'Chỉnh hình',
+//   'Nhi khoa',
+//   'Tâm thần',
+//   'Chẩn đoán hình ảnh',
+//   'Nha sĩ'
+// ]
 type TabType = 'doctor' | 'facility'
 export default function HostsPage() {
   const router = useRouter()
@@ -54,25 +54,30 @@ export default function HostsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchName, setSearchName] = useState('')
-  const [specialty, setSpecialty] = useState('Tat ca chuyen khoa')
+  // const [specialty, setSpecialty] = useState()
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [activeTab, setActiveTab] = useState<TabType>('doctor')
-
+  const [openDialogSpecialties, setOpenDialogSpecialties] = useState(false)
+  const [specials, setSpecials] = useState<Subject[]>([])
+  const [selectedSpecialty, setSelectedSpecialty] =
+    useState('Tất cả chuyên khoa')
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await getAllSpecialty()
+        setSpecials(result)
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu:', error)
+      }
+    }
+    fetchData()
+  }, [])
   // Check authentication
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login')
     }
   }, [user, isLoading, router])
-
-  // // Debounce search input
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setDebouncedSearch(searchName)
-  //   }, 300)
-  //   return () => clearTimeout(timer)
-  // }, [searchName])
-
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -88,21 +93,16 @@ export default function HostsPage() {
     try {
       const params = new URLSearchParams()
       if (debouncedSearch) params.append('name', debouncedSearch)
-      if (specialty && specialty !== 'Tat ca chuyen khoa') {
-        params.append('specialty', specialty)
+      if (selectedSpecialty && selectedSpecialty !== 'Tất cả chuyên khoa') {
+        params.append('specialty', selectedSpecialty)
       }
 
       const queryString = params.toString()
       const url = `/hosts${queryString ? `?${queryString}` : ''}`
 
-      const response = await fetch(`/api${url}`)
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch hosts')
-      }
-
-      const data = await response.json()
-      setHosts(data)
+      const data = await getHosts()
+      setHosts(data.data)
+      // setHosts(DEMO_DOCTORS) //test
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
       // Mock data for demo purposes
@@ -110,7 +110,7 @@ export default function HostsPage() {
     } finally {
       setLoading(false)
     }
-  }, [debouncedSearch, specialty])
+  }, [debouncedSearch, selectedSpecialty])
 
   useEffect(() => {
     fetchHosts()
@@ -122,7 +122,8 @@ export default function HostsPage() {
       .toLowerCase()
       .includes(debouncedSearch.toLowerCase())
     const matchesSpecialty =
-      specialty === 'Tat ca chuyen khoa' || host.specialty === specialty
+      selectedSpecialty === 'Tất cả chuyên khoa' ||
+      host.specialty === selectedSpecialty
     return matchesName && matchesSpecialty
   })
 
@@ -173,7 +174,7 @@ export default function HostsPage() {
           <div className='grid lg:grid-cols-2 gap-8 items-center'>
             <div>
               <h1 className='text-2xl lg:text-3xl font-bold text-foreground'>
-                DAT KHAM THEO BAC SI
+                ĐẶT KHÁM THEO BÁC SĨ
               </h1>
               <ul className='mt-6 space-y-3'>
                 {BENEFITS.map((benefit, index) => (
@@ -196,7 +197,11 @@ export default function HostsPage() {
           </div>
         </div>
       </section>
-
+      <DialogSpecialties
+        open={openDialogSpecialties}
+        setOpen={setOpenDialogSpecialties}
+        handleSelectSpecialty={setSelectedSpecialty}
+      />
       <main className='container max-w-6xl mx-auto px-4 py-8'>
         {/* Search Bar */}
         <div className='mb-6 flex flex-col sm:flex-row gap-4'>
@@ -204,19 +209,26 @@ export default function HostsPage() {
             <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
             <Input
               type='text'
-              placeholder='Tim kiem bac si...'
+              placeholder='Tìm kiếm bác sĩ...'
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
               className='pl-10 h-11'
             />
           </div>
-          <Select value={specialty} onValueChange={setSpecialty}>
+          <Select
+            value={selectedSpecialty}
+            onValueChange={setSelectedSpecialty}
+          >
             <SelectTrigger className='sm:w-64 h-11'>
               <SelectValue placeholder='Tuy chon hien thi' />
             </SelectTrigger>
             <SelectContent>
-              {HOST_SPECIALTIES.map((s) => (
+              <SelectItem key={1} value={'Tất cả chuyên khoa'}>
+                Tất cả chuyên khoa
+              </SelectItem>
+              {specials.map((s) => (
                 <SelectItem key={s.id} value={s.name}>
+                  <img src={s.icon} width={15} alt='' />
                   {s.name}
                 </SelectItem>
               ))}
@@ -257,12 +269,12 @@ export default function HostsPage() {
             {/* Error State */}
             {error && !loading && (
               <div className='mb-4 rounded-lg bg-accent/10 p-4 text-sm text-accent'>
-                Dang hien thi du lieu mau. {error}
+                Đang hiển thị dữ liệu mẫu. {error}
               </div>
             )}
             {/* Doctor Cards */}
             {!loading && activeTab === 'doctor' && filteredHosts.length > 0 && (
-              <div className='space-y-4'>
+              <div className='space-y-4 grid grid-cols-2 gap-2'>
                 {filteredHosts.map((host) => (
                   <HostCard key={host.id} doctor={host} />
                 ))}
@@ -291,10 +303,10 @@ export default function HostsPage() {
                     <Search className='h-8 w-8 text-muted-foreground' />
                   </div>
                   <h3 className='mt-4 text-lg font-medium text-foreground'>
-                    Khong tim thay bac si
+                    Không tìm thấy bác sĩ
                   </h3>
                   <p className='mt-2 text-sm text-muted-foreground max-w-sm'>
-                    Thu dieu chinh tim kiem hoac bo loc de tim bac si phu hop.
+                    Thử điều chỉnh bộ lọc hoặc tìm bác sĩ để đặt lịch phù hợp
                   </p>
                 </div>
               )}
@@ -302,10 +314,10 @@ export default function HostsPage() {
             {!loading && activeTab === 'doctor' && filteredHosts.length > 0 && (
               <div className='flex items-center justify-between pt-4'>
                 <p className='text-sm text-muted-foreground'>
-                  Hien thi {filteredHosts.length} bac si
+                  Hiển thị {filteredHosts.length} bác sĩ
                 </p>
                 <div className='flex gap-1'>
-                  {[1, 2, 3, 4, 5].map((page) => (
+                  {[1].map((page) => (
                     <Button
                       key={page}
                       variant={page === 1 ? 'default' : 'outline'}
@@ -318,7 +330,7 @@ export default function HostsPage() {
                       {page}
                     </Button>
                   ))}
-                  <span className='flex items-center px-2 text-muted-foreground'>
+                  {/* <span className='flex items-center px-2 text-muted-foreground'>
                     ...
                   </span>
                   <Button
@@ -327,7 +339,7 @@ export default function HostsPage() {
                     className='w-9 h-9 bg-transparent'
                   >
                     287
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             )}

@@ -43,15 +43,6 @@ export function AppHeader() {
             <nav className='hidden sm:flex items-center gap-1'>
               <Button variant='ghost' size='sm' asChild>
                 <Link
-                  href='/book'
-                  className='text-muted-foreground hover:text-foreground'
-                >
-                  <CalendarPlus className='h-4 w-4 mr-2' />
-                  Đặt khám theo chuyên khoa
-                </Link>
-              </Button>
-              <Button variant='ghost' size='sm' asChild>
-                <Link
                   href='/hosts'
                   className='text-muted-foreground hover:text-foreground'
                 >
@@ -66,7 +57,7 @@ export function AppHeader() {
                 className='text-muted-foreground hover:text-foreground'
               >
                 <CalendarDays className='h-4 w-4 mr-2' />
-                Quản lí lịch hẹn
+                Phiếu hẹn
               </Link>
             </Button>
             <Button variant='ghost' size='sm' asChild>
@@ -75,7 +66,7 @@ export function AppHeader() {
                 className='text-muted-foreground hover:text-foreground'
               >
                 <CalendarDays className='h-4 w-4 mr-2' />
-                Quản lí hồ sơ khám bệnh
+                Hồ sơ khám bệnh
               </Link>
             </Button>
           </div>

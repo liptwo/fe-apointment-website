@@ -212,39 +212,39 @@ export const DEMO_DOCTORS: Doctor[] = [
   {
     id: '1',
     title: 'TTUT BS CK2',
-    name: 'Duong Minh Tri',
-    specialty: 'Co Xuong Khop',
+    name: 'Dương Minh Trí',
+    specialty: 'Cơ Xương Khớp',
     specialtyId: '8',
-    description: 'Benh ve co xuong khop',
+    description: 'Bệnh về cơ xương khớp',
     price: 200000,
-    schedule: 'Thu 2,3,4,5,6,7',
+    schedule: 'Thứ 2,3,4,5,6,7',
     clinicName:
-      'Phong kham Co xuong khop chuyen sau TTUT BS CK2 Duong Minh Tri',
-    clinicAddress: '180B Le Van Sy, Phuong Phu Nhuan, TP Ho Chi Minh'
+      'Phòng khám Cơ xương khớp chuyên sâu TTUT BS CK2 Dương Minh Trí',
+    clinicAddress: '180B Lê Văn Sỹ, Phường Phú Nhuận, TP. Hồ Chí Minh'
   },
   {
     id: '2',
     title: 'BS',
-    name: 'Nguyen Quoc Linh',
-    specialty: 'Vat ly tri lieu',
+    name: 'Nguyễn Quốc Linh',
+    specialty: 'Vật lý trị liệu',
     specialtyId: '36',
-    description: 'Benh ve vat ly tri lieu - Phuc hoi chuc nang',
+    description: 'Bệnh về vật lý trị liệu - Phục hồi chức năng',
     price: 0,
-    schedule: 'Thu 2,3,4,5,6,7,Chu nhat',
-    clinicName: 'Phong kham Y Hoc Co Truyen Y Khoa Thai Duong',
-    clinicAddress: '15A Tran Khanh Du, P. Ninh Kieu, TP. Can Tho'
+    schedule: 'Thứ 2,3,4,5,6,7,Chủ nhật',
+    clinicName: 'Phòng khám Y Học Cổ Truyền Y Khoa Thái Dương',
+    clinicAddress: '15A Trần Khánh Du, P. Ninh Kiều, TP. Cần Thơ'
   },
   {
     id: '3',
     title: 'BS',
-    name: 'Diep Vo Phuc Thinh',
-    specialty: 'Chuyen khoa Noi',
+    name: 'Diệp Võ Phúc Thịnh',
+    specialty: 'Chuyên khoa Nội',
     specialtyId: '2',
-    description: 'Cac benh ly chuyen khoa Noi',
+    description: 'Các bệnh lý chuyên khoa Nội',
     price: 0,
-    schedule: 'Thu 2,3,4,5,6,7,Chu nhat',
-    clinicName: 'Phong kham Y Hoc Co Truyen Y Khoa Thai Duong',
-    clinicAddress: '15A B. Tran Khanh Du, Xuan Khanh, Ninh Kieu, Can Tho'
+    schedule: 'Thứ 2,3,4,5,6,7,Chủ nhật',
+    clinicName: 'Phòng khám Y Học Cổ Truyền Y Khoa Thái Dương',
+    clinicAddress: '15A B. Trần Khánh Du, Xuân Khánh, Ninh Kiều, Cần Thơ'
   },
   {
     id: '4',
@@ -288,13 +288,13 @@ export const DEMO_DOCTORS: Doctor[] = [
   {
     id: '7',
     title: 'ThS BS',
-    name: 'Le Hoang Thien',
-    specialty: 'Noi tong quat',
+    name: 'Lê Hoàng Thiên',
+    specialty: 'Nội tổng quát',
     specialtyId: '3',
-    description: 'Noi tong quat',
+    description: 'Nội tổng quát',
     price: 149000,
-    schedule: 'Thu 2,3,4,5,6,7,Chu nhat,Hen kham',
-    clinicName: 'Bac si Chuyen Khoa - Tu van Online qua App Medicare',
+    schedule: 'Thứ 2,3,4,5,6,7,Chủ nhật,Hẹn khám',
+    clinicName: 'Bác sĩ Chuyên Khoa - Tư vấn Online qua App Medicare',
     clinicAddress: ''
   },
   {

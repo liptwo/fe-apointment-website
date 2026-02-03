@@ -81,6 +81,9 @@ export interface UpdateUserStatusResponse {
 export interface BookingPayload {
   hostId: string
   timeSlotId: string
+  patientId: string
+  method: string
+  amount: number
   reason: string
 }
 
@@ -93,9 +96,17 @@ export interface Doctor {
   description: string
   price?: number
   schedule?: string
-  clinicName?: string
-  clinicAddress?: string
   avatar?: string
+}
+
+export interface TimeSlot {
+  id: string
+  startTime: string
+  endTime: string
+  isAvailable: boolean
+  date?: string
+  startLabel?: string
+  endLabel?: string
 }
 
 export interface Appointment {
@@ -124,6 +135,13 @@ export interface Appointment {
   }
   createdAt: string
   cancelReason?: string | null
+  // Fields from second interface
+  time?: string
+  patientName?: string
+  patientId?: string
+  doctorName?: string
+  doctorAvatar?: string
+  initials?: string
 }
 
 // --- Notifications ---
@@ -154,15 +172,34 @@ export interface SendNotificationPayload {
   message?: string
 }
 
+export interface Specialty {
+  id: string
+  name: string
+  icon?: string
+}
+
 export interface Subject {
   id: string
   name: string
   icon: string
 }
+
 export interface CreateSubjectPayload {
   name: string
   description: string
 }
+
+export interface CreatePatientPayload {
+  ownerId?: string
+  name: string
+  email: string
+  phone: string
+  address: string
+  dob: string
+  gender: string
+}
+
+export type UpdatePatientPayload = Partial<CreatePatientPayload>
 
 export interface Patient {
   id: string
@@ -172,7 +209,10 @@ export interface Patient {
   phone: string
   address: string
   dob: string
-  gender: string
+  gender: 'MALE' | 'FEMALE' | 'OTHER'
+  cccd?: string
+  ethnic?: string
+  country?: string
 }
 
 export type AppointmentStatus =
@@ -183,14 +223,14 @@ export type AppointmentStatus =
   | 'Completed'
   | 'Cancelled'
 
-export interface Appointment {
-  id: string
-  time: string
-  patientName: string
-  patientId: string
-  phone: string
-  doctorName: string
-  doctorAvatar: string
-  // status: AppointmentStatus
-  initials: string
-}
+// export interface Appointment {
+//   id: string
+//   time: string
+//   patientName: string
+//   patientId: string
+//   phone: string
+//   doctorName: string
+//   doctorAvatar: string
+//   // status: AppointmentStatus
+//   initials: string
+// }

@@ -60,3 +60,7 @@ export const updateHostProfile = async (
   const response = await api.patch<User>(`/users/${id}`, payload)
   return response.data
 }
+// export const getHostById = async (id: string): Promise<User> => {
+//   const response = await api.get<User>(`/users/${id}`)
+//   return response.data
+// }

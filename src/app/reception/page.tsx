@@ -27,8 +27,15 @@ const MOCK_APPOINTMENTS: Appointment[] = [
     phone: '(555) 123-4567',
     doctorName: 'Dr. Sarah Wilson',
     doctorAvatar: '/docs/dr1.jpg',
-    status: 'Scheduled',
-    initials: 'JD'
+    status: 'CONFIRMED',
+    initials: 'JD',
+    reason: '',
+    timeSlot: {
+      startTime: '',
+      endTime: '',
+      date: undefined
+    },
+    createdAt: ''
   },
   {
     id: '2',
@@ -38,8 +45,15 @@ const MOCK_APPOINTMENTS: Appointment[] = [
     phone: '(555) 987-6543',
     doctorName: 'Dr. James Carter',
     doctorAvatar: '/docs/dr2.jpg',
-    status: 'Late',
-    initials: 'JS'
+    status: 'PENDING',
+    initials: 'JS',
+    reason: '',
+    timeSlot: {
+      startTime: '',
+      endTime: '',
+      date: undefined
+    },
+    createdAt: ''
   },
   {
     id: '3',
@@ -49,8 +63,15 @@ const MOCK_APPOINTMENTS: Appointment[] = [
     phone: '(555) 345-6789',
     doctorName: 'Dr. Sarah Wilson',
     doctorAvatar: '/docs/dr1.jpg',
-    status: 'Checked-in',
-    initials: 'AS'
+    status: 'CONFIRMED',
+    initials: 'AS',
+    reason: '',
+    timeSlot: {
+      startTime: '',
+      endTime: '',
+      date: undefined
+    },
+    createdAt: ''
   },
   {
     id: '4',
@@ -60,8 +81,15 @@ const MOCK_APPOINTMENTS: Appointment[] = [
     phone: '(555) 234-5678',
     doctorName: 'Dr. Emily Chen',
     doctorAvatar: '/docs/dr3.jpg',
-    status: 'In-consultation',
-    initials: 'RF'
+    status: 'CONFIRMED',
+    initials: 'RF',
+    reason: '',
+    timeSlot: {
+      startTime: '',
+      endTime: '',
+      date: undefined
+    },
+    createdAt: ''
   }
 ]
 
@@ -166,25 +194,21 @@ export default function ReceptionPage() {
           {/* Filters Bar */}
           <div className='p-4 border-b flex flex-col lg:flex-row gap-4 justify-between items-center bg-white dark:bg-slate-800'>
             <div className='flex gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl w-full lg:w-auto'>
-              {[
-                'All',
-                'Scheduled',
-                'Checked-in',
-                'In-consultation',
-                'Completed'
-              ].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setFilter(tab)}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
-                    filter === tab
-                      ? 'bg-white shadow-sm text-slate-900'
-                      : 'text-slate-500'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+              {['All', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setFilter(tab)}
+                    className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
+                      filter === tab
+                        ? 'bg-white shadow-sm text-slate-900'
+                        : 'text-slate-500'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                )
+              )}
             </div>
 
             <div className='flex gap-3 w-full lg:w-auto'>
@@ -262,7 +286,8 @@ export default function ReceptionPage() {
                         <button className='p-2 text-slate-400 hover:text-blue-600 transition'>
                           <Printer size={18} />
                         </button>
-                        {apt.status === 'Scheduled' || apt.status === 'Late' ? (
+                        {apt.status === 'PENDING' ||
+                        apt.status === 'CONFIRMED' ? (
                           <button className='px-4 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold shadow-md shadow-blue-600/20'>
                             Check-in
                           </button>
@@ -325,12 +350,11 @@ function StatCard({
 
 function StatusBadge({ status }: { status: AppointmentStatus }) {
   const styles: Record<AppointmentStatus, string> = {
-    Scheduled: 'bg-blue-50 text-blue-600 border-blue-100',
-    Late: 'bg-red-50 text-red-600 border-red-100',
-    'Checked-in': 'bg-green-50 text-green-600 border-green-100',
-    'In-consultation': 'bg-purple-50 text-purple-600 border-purple-100',
-    Completed: 'bg-slate-50 text-slate-500 border-slate-100',
-    Cancelled: 'bg-slate-100 text-slate-400 border-slate-200'
+    pending: 'bg-orange-50 text-orange-600 border-orange-100',
+    confirmed: 'bg-blue-50 text-blue-600 border-blue-100',
+    completed: 'bg-green-50 text-green-600 border-green-100',
+    cancelled: 'bg-slate-100 text-slate-400 border-slate-200',
+    'in-progress': 'bg-purple-50 text-purple-600 border-purple-100'
   }
 
   return (
