@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
-import { DashboardHeader } from '@/src/components/dashboard-header'
+// DashboardHeader now in dashboard/layout.tsx
 import { Button } from '@/src/components/ui/button'
 import { Input } from '@/src/components/ui/input'
 import { Label } from '@/src/components/ui/label'
@@ -72,7 +72,7 @@ export default function ProfilePage() {
         email: user.email || '',
         phone: user.phone || '',
         title: user.title || '',
-        specialtyId: user.specialty_id || '',
+        specialtyId: user.specialtyId || '',
         price: user.price?.toString() || '',
         address: user.address || '',
         description: user.description || '',
@@ -139,7 +139,7 @@ export default function ProfilePage() {
         const priceAsNumber = formData.price
           ? parseFloat(formData.price)
           : undefined
-        if (formData.price && (isNaN(priceAsNumber) || priceAsNumber < 0)) {
+        if (priceAsNumber !== undefined && (isNaN(priceAsNumber) || priceAsNumber < 0)) {
           setError('Giá khám phải là một số dương.')
           setIsSubmitting(false)
           return
@@ -188,7 +188,6 @@ export default function ProfilePage() {
   if (isAuthLoading) {
     return (
       <div className='min-h-screen bg-background'>
-        <DashboardHeader />
         <main className='container mx-auto px-4 py-8'>
           <div className='mx-auto max-w-2xl'>
             <div className='h-96 w-full animate-pulse rounded-lg bg-muted' />
@@ -204,7 +203,6 @@ export default function ProfilePage() {
 
   return (
     <div className='min-h-screen bg-background'>
-      <DashboardHeader />
       <main className='container mx-auto px-4 py-8'>
         {isHostWithIncompleteProfile && (
           <div className='mb-6 rounded-lg bg-amber-50 border border-amber-200 p-4 flex items-start gap-3'>

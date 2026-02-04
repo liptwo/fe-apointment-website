@@ -53,7 +53,7 @@ import { Textarea } from '@/src/components/ui/textarea'
 import { Label } from '@/src/components/ui/label'
 import { Appointment } from '@/src/types'
 import { useAuth } from '@/src/providers/auth-provider'
-import { DashboardHeader } from '@/src/components/dashboard-header'
+// DashboardHeader now in dashboard/layout.tsx
 
 const STATUS_STYLES: Record<
   Appointment['status'],
@@ -152,10 +152,10 @@ export default function HostAppointmentsPage() {
         prev.map((apt) =>
           apt.id === appointmentId
             ? {
-                ...apt,
-                status: 'CANCELLED' as const,
-                cancelReason: dialogState.cancelReason
-              }
+              ...apt,
+              status: 'CANCELLED' as const,
+              cancelReason: dialogState.cancelReason
+            }
             : apt
         )
       )
@@ -193,8 +193,6 @@ export default function HostAppointmentsPage() {
 
   return (
     <div className='min-h-screen bg-background'>
-      <DashboardHeader />
-
       <main className='container mx-auto px-4 py-8'>
         {/* Page Header */}
         <div className='mb-8'>
@@ -292,14 +290,14 @@ export default function HostAppointmentsPage() {
                     <div className='flex items-center gap-2 text-sm'>
                       <CalendarDays className='h-4 w-4 text-muted-foreground' />
                       <span>
-                        {formatDate(appointment.timeslots.start_time)}
+                        {formatDate(appointment.timeslots?.start_time)}
                       </span>
                     </div>
                     <div className='flex items-center gap-2 text-sm'>
                       <Clock className='h-4 w-4 text-muted-foreground' />
                       <span>
-                        {formatTime(appointment.timeslots.start_time)} -{' '}
-                        {formatTime(appointment.timeslots.end_time)}
+                        {formatTime(appointment.timeslots?.start_time)} -{' '}
+                        {formatTime(appointment.timeslots?.end_time)}
                       </span>
                     </div>
                   </CardContent>
@@ -374,7 +372,7 @@ export default function HostAppointmentsPage() {
                 </span>{' '}
                 đã lên lịch cho ngày{' '}
                 <span className='font-medium'>
-                  {dialogState.appointment &&
+                  {dialogState.appointment?.timeslots?.start_time &&
                     format(
                       new Date(dialogState.appointment.timeslots.start_time),
                       "MMMM dd, yyyy 'at' hh:mm a"

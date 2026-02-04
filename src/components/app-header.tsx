@@ -69,6 +69,15 @@ export function AppHeader() {
                 Hồ sơ khám bệnh
               </Link>
             </Button>
+            <Button variant='ghost' size='sm' asChild>
+              <Link
+                href='/schedule'
+                className='text-muted-foreground hover:text-foreground'
+              >
+                <CalendarPlus className='h-4 w-4 mr-2' />
+                Lịch làm việc
+              </Link>
+            </Button>
           </div>
 
           <Button

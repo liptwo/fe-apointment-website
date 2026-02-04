@@ -168,7 +168,7 @@ export default function UserPage() {
 
     const payload: CreatePatientPayload = {
       ...data,
-      dob: parsedDate.toISOString()
+      dob: format(parsedDate, 'yyyy-MM-dd')
     }
 
     try {
@@ -228,7 +228,6 @@ export default function UserPage() {
 
   return (
     <div className='min-h-screen bg-background'>
-      <AppHeader />
 
       <main className='container mx-auto px-4 py-8'>
         <div className='mb-8 flex items-center justify-between'>

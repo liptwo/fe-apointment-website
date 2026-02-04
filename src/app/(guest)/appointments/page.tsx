@@ -136,7 +136,6 @@ export default function MyAppointmentsPage() {
   }
   return (
     <div className='min-h-screen bg-background'>
-      <AppHeader />
 
       <main className='container mx-auto px-4 py-8'>
         <div className='mb-8'>
@@ -211,14 +210,14 @@ export default function MyAppointmentsPage() {
                     <div className='flex items-center gap-2 text-sm'>
                       <CalendarDays className='h-4 w-4 text-muted-foreground' />
                       <span>
-                        {formatDate(appointment.timeslots.start_time)}
+                        {formatDate(appointment.timeslots?.start_time)}
                       </span>
                     </div>
                     <div className='flex items-center gap-2 text-sm'>
                       <Clock className='h-4 w-4 text-muted-foreground' />
                       <span>
-                        {formatTime(appointment.timeslots.start_time)} -{' '}
-                        {formatTime(appointment.timeslots.end_time)}
+                        {formatTime(appointment.timeslots?.start_time)} -{' '}
+                        {formatTime(appointment.timeslots?.end_time)}
                       </span>
                     </div>
                     <div className='flex items-center gap-2 text-sm'>
@@ -297,9 +296,9 @@ export default function MyAppointmentsPage() {
                 </span>{' '}
                 vào lúc{' '}
                 <span className='font-medium'>
-                  {selectedAppointment &&
+                  {selectedAppointment?.timeslots?.start_time &&
                     format(
-                      new Date(selectedAppointment.timeSlot.startTime),
+                      new Date(selectedAppointment.timeslots.start_time),
                       "dd/MM/yyyy 'lúc' HH:mm"
                     )}
                 </span>

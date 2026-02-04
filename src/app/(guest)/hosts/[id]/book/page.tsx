@@ -143,8 +143,8 @@ export default function BookingPage() {
         reason: reason.trim()
       })
 
-      // VALIDATION: Check if timeSlot data is populated
-      if (!appointment.timeSlot || !appointment.timeSlot.startTime) {
+      // VALIDATION: Check if timeslots data is populated
+      if (!appointment.timeslots || !appointment.timeslots.start_time) {
         // Try fetching again with a small delay to ensure data is persisted
         await new Promise((resolve) => setTimeout(resolve, 500))
 
@@ -152,18 +152,18 @@ export default function BookingPage() {
           const updatedAppointment = await getAppointmentById(appointment.id)
 
           if (
-            !updatedAppointment.timeSlot ||
-            !updatedAppointment.timeSlot.startTime
+            !updatedAppointment.timeslots ||
+            !updatedAppointment.timeslots.start_time
           ) {
             throw new Error(
               'Appointment was created but time slot information is missing. ' +
-                'Please contact support or try booking again.'
+              'Please contact support or try booking again.'
             )
           }
         } catch (err) {
           throw new Error(
             'Appointment was created but we cannot retrieve the time slot information. ' +
-              'Please check My Appointments page.'
+            'Please check My Appointments page.'
           )
         }
       }

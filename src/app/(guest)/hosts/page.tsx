@@ -166,7 +166,6 @@ export default function HostsPage() {
 
   return (
     <div className='min-h-screen bg-background'>
-      <AppHeader />
 
       {/* Hero Section */}
       <section className='bg-gradient-to-br from-primary/5 via-background to-accent/5 border-b border-border'>

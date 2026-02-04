@@ -21,7 +21,7 @@ import {
   getDoctorTodayAppointments
 } from '@/src/services/appointment.service'
 import { DoctorDashboard, DoctorTodayAppointment } from '@/src/types'
-import { DashboardHeader } from '@/src/components/dashboard-header'
+// DashboardHeader now in dashboard/layout.tsx
 
 export default function DoctorDashboardPage() {
   const [dashboardData, setDashboardData] = useState<DoctorDashboard | null>(
@@ -42,27 +42,23 @@ export default function DoctorDashboardPage() {
 
   return (
     <div className='min-h-screen bg-background'>
-      <DashboardHeader />
-
       <main className='container mx-auto px-4 py-8'>
         <div className='space-y-4'>
           <div className='flex space-x-4 border-b'>
             <button
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === 'all'
-                  ? 'border-b-2 border-primary text-primary'
-                  : 'text-muted-foreground'
-              }`}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'all'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-muted-foreground'
+                }`}
               onClick={() => setActiveTab('all')}
             >
               Thống kê tất cả lịch hẹn
             </button>
             <button
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === 'today'
-                  ? 'border-b-2 border-primary text-primary'
-                  : 'text-muted-foreground'
-              }`}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'today'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-muted-foreground'
+                }`}
               onClick={() => setActiveTab('today')}
             >
               Lịch hẹn hôm nay
@@ -77,7 +73,7 @@ export default function DoctorDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <p className='text-2xl font-bold'>
-                    {dashboardData?.statistics?.total}
+                    {dashboardData?.total}
                   </p>
                 </CardContent>
               </Card>
@@ -87,7 +83,7 @@ export default function DoctorDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <p className='text-2xl font-bold'>
-                    {dashboardData?.statistics?.confirmed}
+                    {dashboardData?.confirmed}
                   </p>
                 </CardContent>
               </Card>
@@ -97,7 +93,7 @@ export default function DoctorDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <p className='text-2xl font-bold'>
-                    {dashboardData?.statistics?.pending}
+                    {dashboardData?.pending}
                   </p>
                 </CardContent>
               </Card>
@@ -107,7 +103,7 @@ export default function DoctorDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <p className='text-2xl font-bold'>
-                    {dashboardData?.statistics?.canceled}
+                    {dashboardData?.canceled}
                   </p>
                 </CardContent>
               </Card>
@@ -140,8 +136,8 @@ export default function DoctorDashboardPage() {
                         <TableCell>{appointment.patient_name}</TableCell>
                         <TableCell>{appointment.phone}</TableCell>
                         <TableCell>
-                          {appointment.timeslots.start_time} -{' '}
-                          {appointment.timeslots.end_time}
+                          {appointment.timeslots?.start_time} -{' '}
+                          {appointment.timeslots?.end_time}
                         </TableCell>
                         <TableCell>
                           <Badge

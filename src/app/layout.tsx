@@ -41,7 +41,9 @@ export default function RootLayout({
     <html lang='en'>
       <body className={`font-sans antialiased`}>
         <AuthProvider>
-          <NotificationsProvider>{children}</NotificationsProvider>
+          <NotificationsProvider>
+            {children}
+          </NotificationsProvider>
           <Analytics />
         </AuthProvider>
       </body>

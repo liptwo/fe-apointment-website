@@ -42,6 +42,15 @@ export function DashboardHeader() {
           <nav className='hidden sm:flex items-center gap-1'>
             <Button variant='ghost' size='sm' asChild>
               <Link
+                href='/schedule'
+                className='text-muted-foreground hover:text-foreground'
+              >
+                <CalendarDays className='h-4 w-4 mr-2' />
+                Lịch làm việc
+              </Link>
+            </Button>
+            <Button variant='ghost' size='sm' asChild>
+              <Link
                 href='/dashboard'
                 className='text-muted-foreground hover:text-foreground'
               >
