@@ -90,11 +90,11 @@ export interface UpdateUserStatusResponse {
 
 export interface BookingPayload {
   hostId: string
-  timeSlotId: string
-  patientId: string
-  method: string
-  amount: number
-  reason: string
+  timeslotId: string
+  patientId?: string
+  paymentMethod?: string
+  paymentAmount?: number
+  reason?: string
 }
 
 export interface Doctor {
@@ -124,8 +124,21 @@ export interface Appointment {
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
   hostId?: string
   guestId?: string | null
-  reason: string
-  timeSlot: {
+  // Backend returns these as snake_case
+  doctor_name?: string
+  patient_name?: string
+  phone?: string
+  payment_status?: string
+  payment_amount?: number
+  cancel_reason?: string | null
+  created_at?: string
+  timeslots?: {
+    start_time: string
+    end_time: string
+  }
+  // Camel case aliases for compatibility
+  reason?: string
+  timeSlot?: {
     startTime: string
     endTime: string
     date?: string
@@ -139,13 +152,23 @@ export interface Appointment {
     address: string
     title: string
   }
+  // doctor is alias for host (used in guest views)
+  doctor?: {
+    name: string
+    email?: string
+    phone?: string
+    specialty: string
+    description?: string
+    address: string
+    title: string
+  }
   guest?: {
     name: string
     email: string
   }
-  createdAt: string
+  createdAt?: string
   cancelReason?: string | null
-  // Fields from second interface
+  // Additional fields
   time?: string
   patientName?: string
   patientId?: string
@@ -200,13 +223,12 @@ export interface CreateSubjectPayload {
 }
 
 export interface CreatePatientPayload {
-  ownerId?: string
   name: string
-  email: string
-  phone: string
-  address: string
-  dob: string
-  gender: string
+  email?: string
+  phone?: string
+  address?: string
+  dob?: string
+  gender?: 'MALE' | 'FEMALE' | 'OTHER'
 }
 
 export type UpdatePatientPayload = Partial<CreatePatientPayload>
