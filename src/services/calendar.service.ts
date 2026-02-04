@@ -18,7 +18,7 @@ export interface Appointment {
     id: string
     patient_name: string
     phone: string
-    status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
+    status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
     payment_status: string
     created_at: string
     timeslots: {

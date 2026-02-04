@@ -121,7 +121,7 @@ export interface TimeSlot {
 
 export interface Appointment {
   id: string
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED'
   hostId?: string
   guestId?: string | null
   // Backend returns these as snake_case
